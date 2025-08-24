@@ -1122,6 +1122,7 @@ def import_remote_file():
     elif is_json:
         ext = ".json"
         dest_dir = "categories"
+        
         max_attempts = 3
         attempts = 0
         while True:

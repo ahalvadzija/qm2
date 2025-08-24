@@ -6,11 +6,13 @@ __pycache__/
 build/
 dist/
 *.egg-info/
+*.egg
 
 # Virtual env
 .venv/
 env/
 venv/
+ENV/
 
 # Test / coverage
 .pytest_cache/
@@ -18,11 +20,14 @@ venv/
 .ruff_cache/
 .coverage
 coverage.xml
+htmlcov/
 
-# Editor
+# Editor / OS
 .vscode/
 .idea/
+.DS_Store
+Thumbs.db
 
-# Data
+# Data / local files
 scores.json
-
+*.log
