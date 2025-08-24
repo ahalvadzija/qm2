@@ -2,11 +2,7 @@
 
 ## Showcase
 
-
 https://github.com/user-attachments/assets/850a7e4a-173a-4acb-b821-4a645c5115cf
-
-
-
 
 ## 📖 Overview
 
