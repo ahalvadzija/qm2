@@ -32,7 +32,7 @@ dependencies = [
 
 [project.urls]
 Homepage = "https://github.com/ahalvadzija/qm2"
-Bug Tracker = "https://github.com/ahalvadzija/qm2/issues"
+"Bug Tracker" = "https://github.com/ahalvadzija/qm2/issues"
 
 [tool.setuptools.packages.find]
 where = ["src"]
