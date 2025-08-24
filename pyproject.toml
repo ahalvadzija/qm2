@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.9"
 license = { file = "LICENSE" }
 authors = [
-    { name = "Adnan Halvadžija", email = "halvadzija.adnan@gmail.com" }
+    { name = "Adnan Halvadžija", email = "halvadzija..adnan@gmail.com" }
 ]
 keywords = ["quiz", "cli", "education", "python"]
 classifiers = [
