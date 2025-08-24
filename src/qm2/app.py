@@ -1121,6 +1121,7 @@ def import_remote_file():
 
     elif is_json:
         ext = ".json"
+        dest_dir = "categories"
         max_attempts = 3
         attempts = 0
         while True:
@@ -1134,8 +1135,6 @@ def import_remote_file():
             if attempts >= max_attempts:
                 console.print("[red]❌ Too many invalid attempts. Cancelled.")
                 return
-        dest_dir = "categories"
-
     else:
         console.print("[red]⚠️ File must be CSV or JSON!")
         return
