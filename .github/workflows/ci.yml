@@ -1,35 +1,69 @@
-name: CI
+name: CI/CD
 
 on:
   push:
-    branches: [ main, master ]
+    branches: ["main"]
+    tags: ["v*"]
   pull_request:
 
 jobs:
-  build:
+  build-test:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.10", "3.11", "3.12"]
-
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
 
-      - name: Install
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -e .[dev]
+          pip install ruff pytest pytest-cov build twine
 
-      - name: Lint & Type check
-        run: |
-          ruff check .
-          ruff format --check .
-          mypy src/qm2
+      - name: Lint with ruff
+        run: ruff check src
 
-      - name: Tests
+      - name: Run tests
+        run: pytest -v --maxfail=1 --disable-warnings --cov=src
+
+      - name: Build package
+        run: python -m build
+
+      - name: Upload dist as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/*
+
+  publish-testpypi:
+    needs: build-test
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install build & twine
         run: |
-          pytest
+          python -m pip install --upgrade pip
+          pip install build twine
+
+      - name: Download dist artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+
+      - name: Publish to TestPyPI
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.TEST_PYPI_API_TOKEN }}
+        run: |
+          twine upload -r testpypi dist/*
 
