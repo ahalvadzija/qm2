@@ -1,0 +1,5 @@
+[project]
+name = "qm2-cli"
+version = "1.1"
+description = "CLI quiz application"
+dependencies = ["rich", "questionary", "requests"]
