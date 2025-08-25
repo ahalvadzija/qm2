@@ -274,9 +274,5 @@ This project is open source. Feel free to modify and distribute according to you
 
 **Created by**: Adnan Halvadžija
 
-**Version**: 1.1
-
-**Last Updated**: 2025
-
 For issues and feature requests, please create an issue in the project repository.
 
