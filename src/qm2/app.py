@@ -10,6 +10,8 @@ import sys
 import threading
 import time
 from datetime import datetime
+import importlib.resources as pkg_resources
+import qm2
 
 import questionary
 import requests
@@ -833,8 +835,13 @@ def reset_scores(score_file):
 
 
 def show_help():
-    help_file = "help.json"
-    data = load_json(help_file)
+    try:
+        # čitanje help.json kao resursa unutar paketa
+        with pkg_resources.files(qm2).joinpath("help.json").open("r", encoding="utf-8") as f:
+            data = json.load(f)
+    except Exception:
+        console.print("[red]⚠️ Help instructions unavailable or invalid.")
+        return
 
     if not data or "instructions" not in data:
         console.print("[red]⚠️ Help instructions unavailable or invalid.")
@@ -845,6 +852,7 @@ def show_help():
         console.print(f"[white]- {line}")
 
     questionary.select("↩ Back", choices=["↩ Back"]).ask()
+
 
 
 def select_category(allow_create: bool = True) -> str | None:
