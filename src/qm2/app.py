@@ -1105,6 +1105,8 @@ def import_remote_file():
     is_json = url.lower().endswith(".json")
     if is_csv:
         ext = ".csv"
+        max_attempts = 3
+        attempts = 0
         while True:
             base = Prompt.ask("Enter file name (without extension)").strip()
             base = os.path.splitext(base)[0].strip().strip(".")

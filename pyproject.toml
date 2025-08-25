@@ -36,5 +36,9 @@ Homepage = "https://github.com/ahalvadzija/qm2"
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
 [project.scripts]
 qm2 = "qm2.__main__:main"
