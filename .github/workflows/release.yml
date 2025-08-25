@@ -8,6 +8,9 @@ on:
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write   # ✅ obavezno za OIDC / Trusted Publishing
+      contents: read    # (default, ali dobro je dodati)
 
     steps:
       - uses: actions/checkout@v4
