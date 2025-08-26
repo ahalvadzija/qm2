@@ -22,14 +22,6 @@ from rich.panel import Panel
 from rich.prompt import Prompt
 from rich.table import Table
 
-from .paths import (
-    SCORES_FILE,
-    CATEGORIES_DIR,
-    CSV_DIR,
-    ensure_dirs,
-    migrate_legacy_paths,
-)
-
 console = Console()
 
 # Caching and helpers for performance on large datasets
