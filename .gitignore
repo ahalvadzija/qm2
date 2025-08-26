@@ -32,3 +32,4 @@ Thumbs.db
 scores.json
 *.log
 categories
+*.csv

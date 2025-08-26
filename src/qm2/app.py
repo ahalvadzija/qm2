@@ -21,7 +21,8 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.prompt import Prompt
 from rich.table import Table
-from qm2.paths import CATEGORIES_DIR
+from qm2.paths import CATEGORIES_DIR, CSV_DIR, SCORES_FILE
+
 
 console = Console()
 
@@ -1132,7 +1133,8 @@ def import_remote_file():
 
     elif is_json:
         ext = ".json"
-        dest_dir = "categories"
+        dest_dir = CATEGORIES_DIR
+        dest_dir.mkdir(parents=True, exist_ok=True)
         
         max_attempts = 3
         attempts = 0
