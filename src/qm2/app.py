@@ -21,6 +21,7 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.prompt import Prompt
 from rich.table import Table
+from qm2.paths import CATEGORIES_DIR
 
 console = Console()
 
@@ -1624,11 +1625,10 @@ def main():
                             ]
                         )
                     console.print(f"[green]✅ CSV template created: [bold]{template_path}[/]")
-
                 elif tools_choice == "📄 Create JSON template":
-                    folder_path = os.path.join("categories", "templates")
-                    os.makedirs(folder_path, exist_ok=True)
-                    json_path = os.path.join(folder_path, "example_template.json")
+                    folder_path = CATEGORIES_DIR / "templates"
+                    folder_path.mkdir(parents=True, exist_ok=True)
+                    json_path = folder_path / "example_template.json"
 
                     template = [
                         {
