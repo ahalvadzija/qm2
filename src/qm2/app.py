@@ -312,7 +312,7 @@ def save_json(filename, data):
     return True
 
 
-def create_new_category(root_dir="categories_root"):
+def create_new_category(root_dir=categories_root):
     folder = Prompt.ask("📁 Enter a folder inside 'categories' (e.g., programming/python)").strip()
     # Validate folder name
     if not folder or any(c in folder for c in ["<", ">", ":", '"', "|", "?", "*"]):
@@ -331,7 +331,7 @@ def create_new_category(root_dir="categories_root"):
     console.print(f"[green]✅ New category created: {path}")
 
 
-def rename_category(root_dir="categories_root"):
+def rename_category(root_dir=categories_root):
     rel_files = get_categories()
     if not rel_files:
         console.print("[yellow]⚠️ No categories to rename.")
@@ -372,7 +372,7 @@ def rename_category(root_dir="categories_root"):
         return
 
 
-def delete_category(root_dir="categories_root"):
+def delete_category(root_dir=categories_root):
     rel_files = get_categories()
     if not rel_files:
         console.print("[yellow]⚠️ No categories to delete.")
@@ -516,7 +516,7 @@ def input_with_timeout(prompt, timeout=60):
             return None
 
 
-def delete_json_quiz_file(root_dir="categories_root"):
+def delete_json_quiz_file(root_dir=categories_root):
     json_rel = get_categories()
 
     if not json_rel:
@@ -870,12 +870,12 @@ def select_category(allow_create: bool = True) -> str | None:
         name = Prompt.ask("Enter file name (e.g., geography.json)").strip()
         base = os.path.splitext(name)[0]
         filename = base + ".json"
-        path = os.path.join("categories_root", filename)
+        path = os.path.join(categories_root, filename)
         os.makedirs(os.path.dirname(path), exist_ok=True)
         save_json(path, [])
         return path
 
-    return os.path.join("categories_root", choice)
+    return os.path.join(categories_root, choice)
 
 
 def edit_question(questions):
@@ -1274,19 +1274,19 @@ def main():
                         ).ask()
 
                         if opt.startswith("➕"):
-                            create_new_category("categories")
+                            create_new_category(categories_root)
                         elif opt.startswith("✏️"):
-                            rename_category("categories")
+                            rename_category(categories_root)
                         elif opt == "🗑️ Delete JSON quiz file":
-                            delete_json_quiz_file("categories")
+                            delete_json_quiz_file(categories_root)
                         elif opt == "🗑️ Delete category":
-                            delete_category("categories")
+                            delete_category(categories_root)
                         elif opt.startswith("↩"):
                             break
 
                 else:
                     # Manage questions for selected category
-                    filename = os.path.join("categories_root", selection)
+                    filename = os.path.join(categories_root, selection)
                     questions = get_questions(filename)
                     while True:
                         sub_choice = questionary.select(
