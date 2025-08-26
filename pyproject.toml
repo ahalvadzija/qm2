@@ -27,8 +27,10 @@ classifiers = [
 dependencies = [
     "rich>=13.7.0",
     "questionary>=2.0.0",
-    "requests>=2.31.0"
+    "requests>=2.31.0",
+    "platformdirs>=4.2"
 ]
+
 [project.urls]
 Homepage = "https://github.com/ahalvadzija/qm2"
 "Bug Tracker" = "https://github.com/ahalvadzija/qm2/issues"
