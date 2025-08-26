@@ -1,3 +1,4 @@
 rich
 questionary
 requests
+platformdirs
