@@ -27,7 +27,7 @@ from qm2.paths import CATEGORIES_DIR, CSV_DIR, SCORES_FILE
 console = Console()
 
 # Caching and helpers for performance on large datasets
-categories_root = "categories"
+categories_root = str(CATEGORIES_DIR)
 categories_cache = None  # list of relative JSON paths within categories_root
 questions_cache = {}  # path -> {"mtime": float, "data": list}
 cache_cleanup_counter = 0  # counter for periodic cache cleanup
@@ -312,7 +312,7 @@ def save_json(filename, data):
     return True
 
 
-def create_new_category(root_dir="categories"):
+def create_new_category(root_dir="categories_root"):
     folder = Prompt.ask("📁 Enter a folder inside 'categories' (e.g., programming/python)").strip()
     # Validate folder name
     if not folder or any(c in folder for c in ["<", ">", ":", '"', "|", "?", "*"]):
@@ -331,7 +331,7 @@ def create_new_category(root_dir="categories"):
     console.print(f"[green]✅ New category created: {path}")
 
 
-def rename_category(root_dir="categories"):
+def rename_category(root_dir="categories_root"):
     rel_files = get_categories()
     if not rel_files:
         console.print("[yellow]⚠️ No categories to rename.")
@@ -372,7 +372,7 @@ def rename_category(root_dir="categories"):
         return
 
 
-def delete_category(root_dir="categories"):
+def delete_category(root_dir="categories_root"):
     rel_files = get_categories()
     if not rel_files:
         console.print("[yellow]⚠️ No categories to delete.")
@@ -516,7 +516,7 @@ def input_with_timeout(prompt, timeout=60):
             return None
 
 
-def delete_json_quiz_file(root_dir="categories"):
+def delete_json_quiz_file(root_dir="categories_root"):
     json_rel = get_categories()
 
     if not json_rel:
@@ -870,12 +870,12 @@ def select_category(allow_create: bool = True) -> str | None:
         name = Prompt.ask("Enter file name (e.g., geography.json)").strip()
         base = os.path.splitext(name)[0]
         filename = base + ".json"
-        path = os.path.join("categories", filename)
+        path = os.path.join("categories_root", filename)
         os.makedirs(os.path.dirname(path), exist_ok=True)
         save_json(path, [])
         return path
 
-    return os.path.join("categories", choice)
+    return os.path.join("categories_root", choice)
 
 
 def edit_question(questions):
@@ -1129,13 +1129,13 @@ def import_remote_file():
             if attempts >= max_attempts:
                 console.print("[red]❌ Too many invalid attempts. Cancelled.")
                 return
-        dest_dir = "csv"
+        dest_dir = str(CSV_DIR)
 
     elif is_json:
         ext = ".json"
-        dest_dir = CATEGORIES_DIR
-        dest_dir.mkdir(parents=True, exist_ok=True)
-        
+        dest_dir = str(CATEGORIES_DIR)
+        os.makedirs(dest_dir, exist_ok=True)
+
         max_attempts = 3
         attempts = 0
         while True:
@@ -1209,7 +1209,7 @@ def show_logo():
 
 
 def main():
-    score_file = "scores.json"
+    score_file = str(SCORES_FILE)
 
     while True:
         console.clear()
@@ -1286,7 +1286,7 @@ def main():
 
                 else:
                     # Manage questions for selected category
-                    filename = os.path.join("categories", selection)
+                    filename = os.path.join("categories_root", selection)
                     questions = get_questions(filename)
                     while True:
                         sub_choice = questionary.select(
@@ -1384,7 +1384,7 @@ def main():
                     break
 
                 elif tools_choice.startswith("🧾"):
-                    csv_dir = "csv"
+                    csv_dir = str(CSV_DIR)
                     if not os.path.exists(csv_dir):
                         os.makedirs(csv_dir)
 
@@ -1405,7 +1405,7 @@ def main():
                     console.print(f"[green]✅ Selected file: {csv_path}")
 
                     # 🔽 1. Ask for a folder inside "categories/" for export
-                    categories_root_dir = "categories"
+                    categories_root_dir = categories_root
                     folders = []
 
                     for dirpath, dirnames, _ in os.walk(categories_root_dir):
@@ -1508,8 +1508,8 @@ def main():
                     )
 
                 elif tools_choice.startswith("📤"):
-                    categories_dir = "categories"
-                    csv_output_dir = "csv"
+                    categories_dir = categories_root
+                    csv_output_dir = str(CSV_DIR)
                     if not os.path.exists(csv_output_dir):
                         os.makedirs(csv_output_dir)
                     # Find all available .json files
@@ -1583,12 +1583,10 @@ def main():
                         )
 
                 elif tools_choice == "📄 Create CSV template":
-                    from pathlib import Path
-                    CSV_DIR = Path("csv")
                     folder_path = CSV_DIR
                     folder_path.mkdir(parents=True, exist_ok=True)
                     csv_path = folder_path / "example_template.csv"
-                    template_path = csv_path  # Fix: define template_path
+                    template_path = csv_path
 
                     with open(template_path, mode="w", newline="", encoding="utf-8") as f:
                         writer = csv.writer(f)
