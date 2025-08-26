@@ -1581,8 +1581,13 @@ def main():
                         )
 
                 elif tools_choice == "📄 Create CSV template":
-                    template_path = "csv/template.csv"
-                    os.makedirs("csv", exist_ok=True)
+                    from pathlib import Path
+                    CSV_DIR = Path("csv")
+                    folder_path = CSV_DIR
+                    folder_path.mkdir(parents=True, exist_ok=True)
+                    csv_path = folder_path / "example_template.csv"
+                    template_path = csv_path  # Fix: define template_path
+
                     with open(template_path, mode="w", newline="", encoding="utf-8") as f:
                         writer = csv.writer(f)
                         writer.writerow(
@@ -1624,7 +1629,7 @@ def main():
                                 "a:1,b:2",
                             ]
                         )
-                    console.print(f"[green]✅ CSV template created: [bold]{template_path}[/]")
+                    console.print(f"[green]✅ CSV template created at: [bold]{csv_path}[/]")
                 elif tools_choice == "📄 Create JSON template":
                     folder_path = CATEGORIES_DIR / "templates"
                     folder_path.mkdir(parents=True, exist_ok=True)
