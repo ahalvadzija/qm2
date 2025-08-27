@@ -1,5 +1,6 @@
 import os
 import re
+import requests  # noqa: F401
 from pathlib import Path
 import questionary
 from questionary import Choice

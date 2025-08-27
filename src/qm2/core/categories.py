@@ -1,14 +1,15 @@
+from rich.console import Console
 import os
 from pathlib import Path
-import questionary
 from rich.prompt import Prompt
-from rich.console import Console
+import questionary 
 
-from qm2.utils import save_json
-
+from qm2.utils.files import save_json
 
 categories_cache: list[str] | None = None
 console = Console()
+
+
 
 def categories_root_dir() -> str:
     # lokalni projektni folder "categories" relativno na CWD
