@@ -27,7 +27,6 @@ import qm2.paths as paths
 console = Console()
 
 # Caching and helpers for performance on large datasets
-categories_root = str(paths.CATEGORIES_DIR)
 categories_cache = None  # list of relative JSON paths within categories_root
 questions_cache = {}  # path -> {"mtime": float, "data": list}
 cache_cleanup_counter = 0  # counter for periodic cache cleanup
@@ -324,7 +323,7 @@ def save_json(filename, data):
         pass
     # if saved under categories_root and is json, update categories cache
     try:
-        abs_root = os.path.abspath(categories_root)
+        abs_root = os.path.abspath(categories_root_dir())
         abs_file = os.path.abspath(filename)
         if abs_file.endswith(".json") and abs_file.startswith(abs_root + os.sep):
             categories_add(abs_file)
@@ -1162,11 +1161,11 @@ def import_remote_file():
             if attempts >= max_attempts:
                 console.print("[red]❌ Too many invalid attempts. Cancelled.")
                 return
-        dest_dir = str(paths.CSV_DIR)
-
+        dest_dir = str(os.path.abspath("csv"))
+        
     elif is_json:
         ext = ".json"
-        dest_dir = str(paths.CATEGORIES_DIR)
+        dest_dir = categories_root_dir()
         os.makedirs(dest_dir, exist_ok=True)
 
         max_attempts = 3
@@ -1307,13 +1306,13 @@ def main():
                         ).ask()
 
                         if opt.startswith("➕"):
-                            create_new_category(categories_root)
+                            create_new_category(categories_root_dir())
                         elif opt.startswith("✏️"):
-                            rename_category(categories_root)
+                            rename_category(categories_root_dir())
                         elif opt == "🗑️ Delete JSON quiz file":
-                            delete_json_quiz_file(categories_root)
+                            delete_json_quiz_file(categories_root_dir())
                         elif opt == "🗑️ Delete category":
-                            delete_category(categories_root)
+                            delete_category(categories_root_dir())
                         elif opt.startswith("↩"):
                             break
 
@@ -1438,7 +1437,7 @@ def main():
                     console.print(f"[green]✅ Selected file: {csv_path}")
 
                     # 🔽 1. Ask for a folder inside "categories/" for export
-                    categories_root_dir = categories_root
+                    cats_root = categories_root_dir()
                     folders = []
 
                     for dirpath, dirnames, _ in os.walk(categories_root_dir):
@@ -1460,7 +1459,7 @@ def main():
                     # 🔽 2. If user wants a new folder
                     if folder_choice == "➕ Create new folder":
                         new_folder = Prompt.ask("Enter new folder name (e.g., history/antiquity)")
-                        folder_path = os.path.join(categories_root_dir, new_folder)
+                        folder_path = os.path.join(cats_root, new_folder)
                         os.makedirs(folder_path, exist_ok=True)
                     else:
                         folder_path = os.path.join(categories_root_dir, folder_choice)
@@ -1541,7 +1540,7 @@ def main():
                     )
 
                 elif tools_choice.startswith("📤"):
-                    categories_dir = categories_root
+                    categories_dir = categories_root_dir()
                     csv_output_dir = str(paths.CSV_DIR)
                     if not os.path.exists(csv_output_dir):
                         os.makedirs(csv_output_dir)
