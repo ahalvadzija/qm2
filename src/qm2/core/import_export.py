@@ -22,7 +22,8 @@ def csv_to_json(csv_file: Path, json_file: Path) -> None:
     >>> data[0]["q"]
     '2+2'
     """
-    import csv, json
+    import csv
+    import json
     with open(csv_file, newline="", encoding="utf-8") as f:
         reader = csv.DictReader(f)
         rows = list(reader)
@@ -48,7 +49,8 @@ def json_to_csv(json_file: Path, csv_file: Path) -> None:
     >>> rows[0]["a"]
     '4'
     """
-    import csv, json
+    import csv
+    import json
     with open(json_file, encoding="utf-8") as f:
         rows = json.load(f)
 

@@ -99,7 +99,6 @@ def rename_category(root_dir: str | None = None):
 
     old_path = os.path.join(root_dir, choice)
     new_name_input = Prompt.ask("📝 New file name (without .json)").strip()
-    from pathlib import Path
 
     # normalizuj ime
     new_name = Path(new_name_input).stem + ".json"

@@ -1,64 +1,40 @@
-import json
 import os
-import platform
-import random
 import re
-import select
-import string
-import sys
-import threading
-import time
-from datetime import datetime
-import importlib.resources as pkg_resources
-import qm2
 from pathlib import Path
 import questionary
-import requests
 from questionary import Choice
-from rich import box
 from rich.console import Console
-from rich.panel import Panel
 from rich.prompt import Prompt
-from rich.table import Table
+
+from qm2 import paths
+from qm2.core.categories import create_new_category, delete_category, categories_root_dir, rename_category
 from qm2.core.import_export import csv_to_json as core_csv_to_json, json_to_csv as core_json_to_csv, download_remote as core_download_remote
 from qm2.core.templates import create_csv_template, create_json_template
-
-from qm2.core.engine import quiz_session, flashcards_mode, input_with_timeout
+from qm2.core.engine import quiz_session, flashcards_mode
 
 from qm2.core.categories import (
-    categories_root_dir,
-    refresh_categories_cache,
     get_categories,
-    _rel_from_root,
     categories_add,
-    categories_remove,
-    categories_rename,
-    csv_root_dir,
     delete_json_quiz_file,
-    rename_category,   
     select_category, 
 )
 
 from qm2.core.questions import (
     get_questions,
-    cleanup_questions_cache,
-    type_label,
     show_questions_paginated,
     edit_question,
     edit_question_by_index,
-    _delete_question_core,
     delete_question_by_index,
     delete_question,
     create_question,  
 )
 
 from qm2.core.scores import (
-    show_scores_paginated,
     view_scores,
     reset_scores,
 )
 
-from qm2.utils import load_json, save_json
+from qm2.utils import save_json
 from qm2.ui.display import show_logo, show_help
 
 console = Console()
@@ -316,7 +292,6 @@ def main():
                         console.print("[yellow]⚠️ No rows converted.")
 
                 elif tools_choice.startswith("📤"):
-                    categories_dir = categories_root_dir()
                     cats = categories_root_dir()
                     # find all JSON files
                     json_files = []

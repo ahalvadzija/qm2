@@ -1,3 +1,12 @@
+from rich.console import Console
+import os
+import json
+
+from qm2.core.categories import categories_root_dir, categories_add
+
+console = Console()
+questions_cache = {}
+
 def load_json(filename):
     if os.path.exists(filename):
         try:

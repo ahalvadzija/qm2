@@ -1,3 +1,16 @@
+import os
+
+from rich.console import Console
+from rich.table import Table
+from rich import box
+from rich.prompt import Prompt
+import questionary
+
+from qm2.utils.files import load_json, save_json
+
+console = Console()
+questions_cache = {}
+
 def get_questions(filename):
     global cache_cleanup_counter
     abs_path = os.path.abspath(filename)

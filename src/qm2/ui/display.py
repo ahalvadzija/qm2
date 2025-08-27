@@ -1,3 +1,12 @@
+from rich.console import Console
+from rich.panel import Panel
+import questionary
+import json
+import importlib.resources as pkg_resources
+import qm2
+
+console = Console()
+
 def show_logo():
     console.print(
         Panel(
