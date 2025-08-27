@@ -1,0 +1,35 @@
+def show_logo():
+    console.print(
+        Panel(
+            """[bold green]🎓 Welcome to
+                    •     ┳┳┓      ┓           
+            ┏┓  ┓┏  ┓  ┓  ┃┃┃  ┏┓  ┃┏  ┏┓  ┏┓  
+            ┗┫  ┗┻  ┗  ┗  ┛ ┗  ┗┻  ┛┗  ┗   ┛   
+             ┗                                 
+                             ┏┓                            
+                        ┏┓┏┳┓┏┛                            
+                        ┗┫┛┗┗┗━                            
+                         ┗""",
+            expand=False,
+        )
+    )
+
+def show_help():
+    try:
+        # čitanje help.json kao resursa unutar paketa
+        with pkg_resources.files(qm2).joinpath("help.json").open("r", encoding="utf-8") as f:
+            data = json.load(f)
+    except Exception:
+        console.print("[red]⚠️ Help instructions unavailable or invalid.")
+        return
+
+    if not data or "instructions" not in data:
+        console.print("[red]⚠️ Help instructions unavailable or invalid.")
+        return
+
+    console.rule("[bold cyan]🆘 Help")
+    for line in data["instructions"]:
+        console.print(f"[white]- {line}")
+
+    questionary.select("↩ Back", choices=["↩ Back"]).ask()
+    

@@ -1,31 +1,35 @@
+import json
 import csv
-from pathlib import Path
-import qm2.paths as paths
+from qm2.core import templates
 
 
 def test_create_csv_template(tmp_path, monkeypatch):
-    # 🔹 1. Patch DATA_DIR tako da ide u tmp_path (ne pravi u ~/.local/share/qm2)
-    monkeypatch.setattr(paths, "DATA_DIR", tmp_path / "data")
-    monkeypatch.setattr(paths, "CSV_DIR", paths.DATA_DIR / "csv")
+    # Patch CSV_DIR da pokazuje na privremeni folder
+    monkeypatch.setattr(templates, "CSV_DIR", tmp_path)
 
-    # 🔹 2. Kreiraj folder
-    paths.CSV_DIR.mkdir(parents=True, exist_ok=True)
+    # Poziv funkcije
+    path = templates.create_csv_template()
 
-    # 🔹 3. Putanja fajla
-    csv_path = paths.CSV_DIR / "example_template.csv"
-
-    # 🔹 4. Simuliraj kreiranje fajla (isto kao u app.py)
-    with open(csv_path, "w", newline="", encoding="utf-8") as f:
-        writer = csv.writer(f)
-        writer.writerow(
-            ["type", "question", "correct", "wrong_answers", "left", "right", "answers"]
-        )
-
-    # 🔹 5. Test – fajl mora postojati
-    assert csv_path.exists()
-
-    # 🔹 6. Test – prva linija u CSV-u mora biti header
-    with open(csv_path, newline="", encoding="utf-8") as f:
+    # Provjere
+    assert path.exists(), "CSV template nije kreiran"
+    with open(path, newline="", encoding="utf-8") as f:
         reader = csv.reader(f)
-        header = next(reader)
-        assert header == ["type", "question", "correct", "wrong_answers", "left", "right", "answers"]
+        headers = next(reader)
+        assert "question" in headers
+        rows = list(reader)
+        assert any("Paris" in row for row in rows)
+
+
+def test_create_json_template(tmp_path, monkeypatch):
+    # Patch CATEGORIES_DIR da pokazuje na privremeni folder
+    monkeypatch.setattr(templates, "CATEGORIES_DIR", tmp_path)
+
+    # Poziv funkcije
+    path = templates.create_json_template()
+
+    # Provjere
+    assert path.exists(), "JSON template nije kreiran"
+    data = json.loads(path.read_text(encoding="utf-8"))
+    assert isinstance(data, list)
+    assert any(item.get("type") == "multiple" for item in data)
+    assert any(item.get("correct") == "Paris" for item in data)

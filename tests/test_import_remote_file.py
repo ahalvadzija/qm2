@@ -3,14 +3,14 @@ import qm2.app as app
 
 class FakeResponse:
     def __init__(self, content: bytes):
-        self._content = content
+        self.content = content      # 🔹 Dodali smo .content jer ga kod koristi
         self.status_code = 200
 
     def raise_for_status(self):
         return True
 
     def iter_content(self, chunk_size=8192):
-        yield self._content
+        yield self.content          # 🔹 usklađeno sa .content
 
 
 def test_import_remote_file_json_safe(monkeypatch, tmp_path):
@@ -22,11 +22,15 @@ def test_import_remote_file_json_safe(monkeypatch, tmp_path):
 
     # Prompt.ask se zove 2x: prvo za URL, pa za ime fajla
     answers = iter(["http://fake/file.json", "math"])
-    monkeypatch.setattr(app, "Prompt", type("P", (), {"ask": staticmethod(lambda _: next(answers))}))
+    monkeypatch.setattr(app, "Prompt", type("P", (), {
+        "ask": staticmethod(lambda _: next(answers))
+    }))
 
     # fake questionary.confirm -> uvijek overwrite
     monkeypatch.setattr(app, "questionary", type("Q", (), {
-        "confirm": staticmethod(lambda msg=None: type("C", (), {"ask": staticmethod(lambda : True)})())
+        "confirm": staticmethod(lambda msg=None: type("C", (), {
+            "ask": staticmethod(lambda : True)
+        })())
     }))
 
     # patch categories_add
@@ -42,6 +46,7 @@ def test_import_remote_file_json_safe(monkeypatch, tmp_path):
     assert b"2+2" in file_path.read_bytes()
     assert called["added"].endswith("math.json")
 
+
 def test_import_remote_file_rejects_bad_name(monkeypatch, tmp_path):
     monkeypatch.chdir(tmp_path)
 
@@ -55,11 +60,15 @@ def test_import_remote_file_rejects_bad_name(monkeypatch, tmp_path):
             return "http://fake/file.json"
         return "../bad"
 
-    monkeypatch.setattr(app, "Prompt", type("P", (), {"ask": staticmethod(fake_prompt_ask)}))
+    monkeypatch.setattr(app, "Prompt", type("P", (), {
+        "ask": staticmethod(fake_prompt_ask)
+    }))
 
     # fake questionary.confirm
     monkeypatch.setattr(app, "questionary", type("Q", (), {
-        "confirm": staticmethod(lambda msg=None: type("C", (), {"ask": staticmethod(lambda : True)})())
+        "confirm": staticmethod(lambda msg=None: type("C", (), {
+            "ask": staticmethod(lambda : True)
+        })())
     }))
 
     called = {}
@@ -74,4 +83,3 @@ def test_import_remote_file_rejects_bad_name(monkeypatch, tmp_path):
 
     # categories_add se nije smio pozvati
     assert "added" not in called
-
