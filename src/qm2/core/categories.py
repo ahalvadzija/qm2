@@ -6,6 +6,7 @@ from rich.console import Console
 
 from qm2.utils import save_json
 
+
 categories_cache: list[str] | None = None
 console = Console()
 
@@ -81,6 +82,13 @@ def create_new_category(root_dir: str | None = None):
     save_json(path, [])
     categories_add(path)
     console.print(f"[green]✅ New category created: {path}")
+
+def save_category_file(path, data):
+    """Save category file and also update categories cache."""
+    if save_json(path, data):
+        categories_add(path)
+        return True
+    return False
 
 def rename_category(root_dir: str | None = None):
     if root_dir is None:

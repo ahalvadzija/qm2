@@ -2,8 +2,6 @@ from rich.console import Console
 import os
 import json
 
-from qm2.core.categories import categories_root_dir, categories_add
-
 console = Console()
 questions_cache = {}
 
@@ -43,14 +41,6 @@ def save_json(filename, data):
         abs_path = os.path.abspath(filename)
         mtime = os.path.getmtime(abs_path)
         questions_cache[abs_path] = {"mtime": mtime, "data": data}
-    except Exception:
-        pass
-    # if saved under categories_root and is json, update categories cache
-    try:
-        abs_root = os.path.abspath(categories_root_dir())
-        abs_file = os.path.abspath(filename)
-        if abs_file.endswith(".json") and abs_file.startswith(abs_root + os.sep):
-            categories_add(abs_file)
     except Exception:
         pass
 
