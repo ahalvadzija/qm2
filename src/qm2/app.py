@@ -21,13 +21,13 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.prompt import Prompt
 from rich.table import Table
-from qm2.paths import CATEGORIES_DIR, CSV_DIR, SCORES_FILE
+import qm2.paths as paths
 
 
 console = Console()
 
 # Caching and helpers for performance on large datasets
-categories_root = str(CATEGORIES_DIR)
+categories_root = str(paths.CATEGORIES_DIR)
 categories_cache = None  # list of relative JSON paths within categories_root
 questions_cache = {}  # path -> {"mtime": float, "data": list}
 cache_cleanup_counter = 0  # counter for periodic cache cleanup
@@ -1129,11 +1129,11 @@ def import_remote_file():
             if attempts >= max_attempts:
                 console.print("[red]❌ Too many invalid attempts. Cancelled.")
                 return
-        dest_dir = str(CSV_DIR)
+        dest_dir = str(paths.CSV_DIR)
 
     elif is_json:
         ext = ".json"
-        dest_dir = str(CATEGORIES_DIR)
+        dest_dir = str(paths.CATEGORIES_DIR)
         os.makedirs(dest_dir, exist_ok=True)
 
         max_attempts = 3
@@ -1209,7 +1209,7 @@ def show_logo():
 
 
 def main():
-    score_file = str(SCORES_FILE)
+    score_file = str(paths.SCORES_FILE)
 
     while True:
         console.clear()
@@ -1384,7 +1384,7 @@ def main():
                     break
 
                 elif tools_choice.startswith("🧾"):
-                    csv_dir = str(CSV_DIR)
+                    csv_dir = str(paths.CSV_DIR)
                     if not os.path.exists(csv_dir):
                         os.makedirs(csv_dir)
 
@@ -1509,7 +1509,7 @@ def main():
 
                 elif tools_choice.startswith("📤"):
                     categories_dir = categories_root
-                    csv_output_dir = str(CSV_DIR)
+                    csv_output_dir = str(paths.CSV_DIR)
                     if not os.path.exists(csv_output_dir):
                         os.makedirs(csv_output_dir)
                     # Find all available .json files
@@ -1583,7 +1583,7 @@ def main():
                         )
 
                 elif tools_choice == "📄 Create CSV template":
-                    folder_path = CSV_DIR
+                    folder_path = paths.CSV_DIR
                     folder_path.mkdir(parents=True, exist_ok=True)
                     csv_path = folder_path / "example_template.csv"
                     template_path = csv_path
@@ -1631,7 +1631,7 @@ def main():
                         )
                     console.print(f"[green]✅ CSV template created at: [bold]{csv_path}[/]")
                 elif tools_choice == "📄 Create JSON template":
-                    folder_path = CATEGORIES_DIR / "templates"
+                    folder_path = paths.CATEGORIES_DIR / "templates"
                     folder_path.mkdir(parents=True, exist_ok=True)
                     json_path = folder_path / "example_template.json"
 
