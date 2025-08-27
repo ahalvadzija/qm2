@@ -32,11 +32,21 @@ categories_cache = None  # list of relative JSON paths within categories_root
 questions_cache = {}  # path -> {"mtime": float, "data": list}
 cache_cleanup_counter = 0  # counter for periodic cache cleanup
 
+def categories_root_dir() -> str:
+    # lokalni projektni folder "categories" relativno na CWD
+    return os.path.abspath("categories")
+
+def csv_root_dir() -> str:
+    # lokalni projektni folder "csv" relativno na CWD
+    return os.path.abspath("csv")
 
 SAFE_NAME = re.compile(r"^[a-zA-Z0-9._-]{1,64}$")
 
 
-def refresh_categories_cache(root_dir=categories_root):
+def refresh_categories_cache(root_dir: str | None = None):
+    if root_dir is None:
+        root_dir = categories_root_dir()
+        
     global categories_cache
     categories = []
     if os.path.exists(root_dir):
@@ -48,7 +58,10 @@ def refresh_categories_cache(root_dir=categories_root):
     return categories_cache
 
 
-def get_categories(use_cache=True, root_dir=categories_root):
+def get_categories(use_cache=True, root_dir: str | None = None):
+    if root_dir is None:
+        root_dir = categories_root_dir()
+    
     global categories_cache
     if not use_cache or categories_cache is None:
         refresh_categories_cache(root_dir)
@@ -58,7 +71,10 @@ def get_categories(use_cache=True, root_dir=categories_root):
     return list(cats)
 
 
-def _rel_from_root(path, root_dir=categories_root):
+def _rel_from_root(path, root_dir: str | None = None):
+    if root_dir is None:
+        root_dir = categories_root_dir()
+
     abs_root = os.path.abspath(root_dir)
     abs_path = os.path.abspath(path)
     try:
@@ -73,7 +89,10 @@ def _rel_from_root(path, root_dir=categories_root):
     return path
 
 
-def categories_add(path, root_dir=categories_root):
+def categories_add(path, root_dir: str | None = None):
+    if root_dir is None:
+        root_dir = categories_root_dir()
+    
     global categories_cache
     if categories_cache is None:
         return
@@ -83,7 +102,10 @@ def categories_add(path, root_dir=categories_root):
         categories_cache.sort()
 
 
-def categories_remove(path, root_dir=categories_root):
+def categories_remove(path, root_dir: str | None = None):
+    if root_dir is None:
+        root_dir = categories_root_dir()
+
     global categories_cache
     if categories_cache is None:
         return
@@ -92,7 +114,7 @@ def categories_remove(path, root_dir=categories_root):
         categories_cache.remove(rel)
 
 
-def categories_rename(old_path, new_path, root_dir=categories_root):
+def categories_rename(old_path, new_path, root_dir: str | None = None):
     global categories_cache
     if categories_cache is None:
         return
@@ -312,7 +334,9 @@ def save_json(filename, data):
     return True
 
 
-def create_new_category(root_dir=categories_root):
+def create_new_category(root_dir: str | None = None):
+    if root_dir is None:
+        root_dir = categories_root_dir()
     folder = Prompt.ask("📁 Enter a folder inside 'categories' (e.g., programming/python)").strip()
     # Validate folder name
     if not folder or any(c in folder for c in ["<", ">", ":", '"', "|", "?", "*"]):
@@ -331,7 +355,10 @@ def create_new_category(root_dir=categories_root):
     console.print(f"[green]✅ New category created: {path}")
 
 
-def rename_category(root_dir=categories_root):
+def rename_category(root_dir: str | None = None):
+    if root_dir is None:
+        root_dir = categories_root_dir()
+    
     rel_files = get_categories()
     if not rel_files:
         console.print("[yellow]⚠️ No categories to rename.")
@@ -372,7 +399,10 @@ def rename_category(root_dir=categories_root):
         return
 
 
-def delete_category(root_dir=categories_root):
+def delete_category(root_dir: str | None = None):
+    if root_dir is None:
+        root_dir = categories_root_dir()
+
     rel_files = get_categories()
     if not rel_files:
         console.print("[yellow]⚠️ No categories to delete.")
@@ -516,7 +546,10 @@ def input_with_timeout(prompt, timeout=60):
             return None
 
 
-def delete_json_quiz_file(root_dir=categories_root):
+def delete_json_quiz_file(root_dir: str | None = None):
+    if root_dir is None:
+        root_dir = categories_root_dir()
+        
     json_rel = get_categories()
 
     if not json_rel:
@@ -870,12 +903,12 @@ def select_category(allow_create: bool = True) -> str | None:
         name = Prompt.ask("Enter file name (e.g., geography.json)").strip()
         base = os.path.splitext(name)[0]
         filename = base + ".json"
-        path = os.path.join(categories_root, filename)
+        path = os.path.join(categories_root_dir(), filename)
         os.makedirs(os.path.dirname(path), exist_ok=True)
         save_json(path, [])
         return path
 
-    return os.path.join(categories_root, choice)
+    return os.path.join(categories_root_dir(), choice)
 
 
 def edit_question(questions):
@@ -1286,7 +1319,7 @@ def main():
 
                 else:
                     # Manage questions for selected category
-                    filename = os.path.join(categories_root, selection)
+                    filename = os.path.join(categories_root_dir(), selection)
                     questions = get_questions(filename)
                     while True:
                         sub_choice = questionary.select(
