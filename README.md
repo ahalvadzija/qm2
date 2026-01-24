@@ -1,5 +1,7 @@
 # Quiz Maker 2 (QM2) - Interactive Terminal Quiz Application
-
+![Python Version](https://img.shields.io/badge/python-3.7%2B-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
+![Dependencies](https://img.shields.io/badge/dependencies-rich%20%7C%20questionary-orange)
 ## Showcase
 
 https://github.com/user-attachments/assets/850a7e4a-173a-4acb-b821-4a645c5115cf
