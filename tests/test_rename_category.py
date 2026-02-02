@@ -1,6 +1,7 @@
 import qm2.core.categories as categories
 from pathlib import Path
 
+
 class FakeQuestionary:
     def __init__(self, return_value):
         self.return_value = return_value
@@ -17,6 +18,8 @@ def test_rename_category_normalizes_extension(monkeypatch, tmp_path):
 
     categories_dir = tmp_path / "categories"
     categories_dir.mkdir(parents=True, exist_ok=True)
+    monkeypatch.setattr(categories, "CATEGORIES_DIR", categories_dir)
+
     old_file = categories_dir / "old.json"
     old_file.write_text("[]", encoding="utf-8")
 

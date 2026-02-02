@@ -1,13 +1,21 @@
+from __future__ import annotations
+
+from pathlib import Path
+from typing import Any
+
+import questionary
 from rich.console import Console
 from rich.table import Table
 from rich import box
-import questionary
 
 from qm2.utils.files import load_json, save_json
 
 console = Console()
 
-def show_scores_paginated(scores, page_size=25):
+
+def show_scores_paginated(
+    scores: list[dict[str, Any]], page_size: int = 25
+) -> None:
     # Normalize entries to English keys while supporting legacy data
     normalized = []
     for s in scores:
@@ -83,8 +91,9 @@ def show_scores_paginated(scores, page_size=25):
             continue
         break
 
-def view_scores(score_file):
-    scores = load_json(score_file)
+
+def view_scores(score_file: str | Path) -> None:
+    scores = load_json(str(score_file))
     if not scores:
         console.print("[yellow]⚠️ No saved results.")
         return
@@ -97,11 +106,12 @@ def view_scores(score_file):
             show_scores_paginated(scores, page_size=25)
     else:
         show_scores_paginated(scores, page_size=25)
-        
-def reset_scores(score_file):
+
+
+def reset_scores(score_file: str | Path) -> None:
     confirm = questionary.confirm("⚠️ Are you sure you want to delete ALL results?").ask()
     if confirm:
-        save_json(score_file, [])
+        save_json(str(score_file), [])
         console.print("[red]❌ All results cleared.")
     else:
         console.print("[yellow]↩ Reset canceled.")

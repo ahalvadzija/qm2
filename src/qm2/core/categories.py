@@ -1,25 +1,32 @@
-from rich.console import Console
+from __future__ import annotations
+
 import os
 from pathlib import Path
-from rich.prompt import Prompt
-import questionary 
+from typing import Any
 
+import questionary
+from rich.console import Console
+from rich.prompt import Prompt
+
+from qm2.paths import CATEGORIES_DIR, CSV_DIR
 from qm2.utils.files import save_json
 
 categories_cache: list[str] | None = None
 console = Console()
 
 
-
 def categories_root_dir() -> str:
-    # lokalni projektni folder "categories" relativno na CWD
-    return os.path.abspath("categories")
+    """Return the categories directory (platformdirs-based)."""
+    return str(CATEGORIES_DIR)
+
 
 def csv_root_dir() -> str:
-    # lokalni projektni folder "csv" relativno na CWD
-    return os.path.abspath("csv")
+    """Return the CSV directory (platformdirs-based)."""
+    return str(CSV_DIR)
 
-def get_categories(use_cache=True, root_dir: str | None = None):
+def get_categories(
+    use_cache: bool = True, root_dir: str | None = None
+) -> list[str]:
     if root_dir is None:
         root_dir = categories_root_dir()
     
@@ -52,7 +59,7 @@ def select_category(allow_create: bool = True) -> str | None:
 
     return os.path.join(categories_root_dir(), choice)
 
-def categories_add(path, root_dir: str | None = None):
+def categories_add(path: str, root_dir: str | None = None) -> None:
     if root_dir is None:
         root_dir = categories_root_dir()
     
@@ -64,7 +71,7 @@ def categories_add(path, root_dir: str | None = None):
         categories_cache.append(rel)
         categories_cache.sort()
 
-def create_new_category(root_dir: str | None = None):
+def create_new_category(root_dir: str | None = None) -> None:
     if root_dir is None:
         root_dir = categories_root_dir()
     folder = Prompt.ask("📁 Enter a folder inside 'categories' (e.g., programming/python)").strip()
@@ -84,14 +91,14 @@ def create_new_category(root_dir: str | None = None):
     categories_add(path)
     console.print(f"[green]✅ New category created: {path}")
 
-def save_category_file(path, data):
+def save_category_file(path: str, data: list[Any] | dict[str, Any]) -> bool:
     """Save category file and also update categories cache."""
     if save_json(path, data):
         categories_add(path)
         return True
     return False
 
-def rename_category(root_dir: str | None = None):
+def rename_category(root_dir: str | None = None) -> None:
     if root_dir is None:
         root_dir = categories_root_dir()
     
@@ -133,7 +140,7 @@ def rename_category(root_dir: str | None = None):
         console.print(f"[red]⚠️ Error renaming file: {e}")
         return
 
-def categories_remove(path, root_dir: str | None = None):
+def categories_remove(path: str, root_dir: str | None = None) -> None:
     if root_dir is None:
         root_dir = categories_root_dir()
 
@@ -144,7 +151,7 @@ def categories_remove(path, root_dir: str | None = None):
     if rel in categories_cache:
         categories_cache.remove(rel)
 
-def delete_category(root_dir: str | None = None):
+def delete_category(root_dir: str | None = None) -> None:
     if root_dir is None:
         root_dir = categories_root_dir()
 
@@ -170,7 +177,9 @@ def delete_category(root_dir: str | None = None):
             console.print(f"[red]⚠️ Error deleting file: {e}")
             return
         
-def categories_rename(old_path, new_path, root_dir: str | None = None):
+def categories_rename(
+    old_path: str, new_path: str, root_dir: str | None = None
+) -> None:
     global categories_cache
     if categories_cache is None:
         return
@@ -182,7 +191,7 @@ def categories_rename(old_path, new_path, root_dir: str | None = None):
         categories_cache.append(new_rel)
         categories_cache.sort()
         
-def refresh_categories_cache(root_dir: str | None = None):
+def refresh_categories_cache(root_dir: str | None = None) -> list[str]:
     if root_dir is None:
         root_dir = categories_root_dir()
         
@@ -196,7 +205,7 @@ def refresh_categories_cache(root_dir: str | None = None):
     categories_cache = sorted(set(categories))
     return categories_cache
 
-def _rel_from_root(path, root_dir: str | None = None):
+def _rel_from_root(path: str, root_dir: str | None = None) -> str:
     if root_dir is None:
         root_dir = categories_root_dir()
 
@@ -213,7 +222,7 @@ def _rel_from_root(path, root_dir: str | None = None):
         return os.path.relpath(path, root_dir)
     return path
 
-def delete_json_quiz_file(root_dir: str | None = None):
+def delete_json_quiz_file(root_dir: str | None = None) -> None:
     if root_dir is None:
         root_dir = categories_root_dir()
         

@@ -1,4 +1,8 @@
+from __future__ import annotations
+
 import os
+from pathlib import Path
+from typing import Any
 
 from rich.console import Console
 from rich.table import Table
@@ -9,9 +13,11 @@ import questionary
 from qm2.utils.files import load_json, save_json
 
 console = Console()
-questions_cache = {}
+questions_cache: dict[str, dict[str, Any]] = {}
+cache_cleanup_counter = 0
 
-def get_questions(filename):
+
+def get_questions(filename: str | Path) -> list[dict[str, Any]]:
     global cache_cleanup_counter
     abs_path = os.path.abspath(filename)
     try:
@@ -32,8 +38,8 @@ def get_questions(filename):
     questions_cache[abs_path] = {"mtime": mtime, "data": data}
     return data
 
-def cleanup_questions_cache():
-    """Remove entries from cache for files that no longer exist"""
+def cleanup_questions_cache() -> None:
+    """Remove entries from cache for files that no longer exist."""
     global questions_cache
     to_remove = []
     for path in questions_cache:
@@ -42,7 +48,7 @@ def cleanup_questions_cache():
     for path in to_remove:
         del questions_cache[path]
 
-def create_question():
+def create_question() -> dict[str, Any] | None:
     console.rule("[bold green]Add question")
     qtype = questionary.select(
         "Choose question type",
@@ -125,7 +131,8 @@ def create_question():
 
     return None
 
-def type_label(t):
+
+def type_label(t: str | None) -> str:
     if t == "multiple":
         return "🟢 Multiple choice"
     if t == "truefalse":
@@ -136,7 +143,11 @@ def type_label(t):
         return "🟣 Matching"
     return "❔ Unknown"
 
-def show_questions_paginated(questions, title="📚 Questions", page_size=25):
+def show_questions_paginated(
+    questions: list[dict[str, Any]],
+    title: str = "📚 Questions",
+    page_size: int = 25,
+) -> None:
     if not questions:
         console.print("[yellow]⚠️ No questions to display.")
         return
@@ -168,8 +179,9 @@ def show_questions_paginated(questions, title="📚 Questions", page_size=25):
             page += 1
             continue
         break
-    
-def edit_question(questions):
+
+
+def edit_question(questions: list[dict[str, Any]]) -> None:
     if not questions:
         console.print("[yellow]⚠️ No questions available to edit.")
         return
@@ -265,7 +277,9 @@ def edit_question(questions):
     console.print("[green]✅ Question updated successfully.")
     
     
-def edit_question_by_index(questions, index_number):
+def edit_question_by_index(
+    questions: list[dict[str, Any]], index_number: int | str
+) -> None:
     """Edit a question directly by its ordinal number (1-based)."""
     if not questions:
         console.print("[yellow]⚠️ No questions available to edit.")

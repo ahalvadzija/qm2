@@ -1,5 +1,6 @@
 import qm2.core.categories as categories
 
+
 class FakeQuestionary:
     def __init__(self, return_value):
         self.return_value = return_value

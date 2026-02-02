@@ -1,13 +1,17 @@
+from __future__ import annotations
+
+import importlib.resources as pkg_resources
+import json
+
+import questionary
+import qm2
 from rich.console import Console
 from rich.panel import Panel
-import questionary
-import json
-import importlib.resources as pkg_resources
-import qm2
 
 console = Console()
 
-def show_logo():
+
+def show_logo() -> None:
     console.print(
         Panel(
             """[bold green]🎓 Welcome to
@@ -23,7 +27,8 @@ def show_logo():
         )
     )
 
-def show_help():
+
+def show_help() -> None:
     try:
         # čitanje help.json kao resursa unutar paketa
         with pkg_resources.files(qm2).joinpath("help.json").open("r", encoding="utf-8") as f:
