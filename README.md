@@ -3,7 +3,6 @@
 [![PyPI version](https://badge.fury.io/py/qm2.svg)](https://badge.fury.io/py/qm2)
 [![Python versions](https://img.shields.io/pypi/pyversions/qm2.svg)](https://pypi.org/project/qm2/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![pytest](https://img.shields.io/badge/pytest-122%20tests-brightgreen.svg)](https://github.com/ahalvadzija/qm2)
 
 ![Main Menu](images/main-qm2.png)
@@ -46,19 +45,23 @@ pip install -e .
 ## 📸 Screenshots
 
 ### Quiz Features
-![Gameplay](images/gameplay-qm2.png)  ![Flashcards](images/flashcards-qm2.png)
+
+![Gameplay](images/gameplay-qm2.png) ![Flashcards](images/flashcards-qm2.png)
 
 ### Tools & Help
-![Tools](images/tools-qm2.png)  ![Help](images/help-qm2.png)
+
+![Tools](images/tools-qm2.png) ![Help](images/help-qm2.png)
 
 ## 🛠️ Installation
 
 ### From PyPI (Recommended)
+
 ```bash
 pip install qm2
 ```
 
 ### From Source
+
 ```bash
 git clone https://github.com/ahalvadzija/qm2.git
 cd qm2
@@ -66,6 +69,7 @@ pip install -e .
 ```
 
 ### Development Installation
+
 ```bash
 git clone https://github.com/ahalvadzija/qm2.git
 cd qm2
@@ -75,6 +79,7 @@ pip install -e ".[dev]"
 ## 🎯 Usage
 
 ### Basic Usage
+
 ```bash
 # Start the application
 qm2
@@ -84,6 +89,7 @@ python -m qm2
 ```
 
 ### Command Line Options
+
 ```bash
 # Show help
 qm2 --help
@@ -105,17 +111,20 @@ qm2 --data-dir /path/to/data
 4. **Matching**: Items to match with correct pairs
 
 ### Category Management
+
 - Create hierarchical categories (e.g., `programming/python/basics`)
 - Rename and delete categories
 - Automatic directory structure creation
 
 ### Import/Export Capabilities
+
 - **CSV ↔ JSON**: Bidirectional conversion
 - **Template Generation**: Create starter templates
 - **Remote Import**: Download from URLs
 - **Bulk Operations**: Manage multiple files efficiently
 
 ### Performance Features
+
 - **Caching System**: Optimized for large question sets
 - **Memory Management**: Automatic cache cleanup
 - **Fast Loading**: Sub-second load times for thousands of questions
