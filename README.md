@@ -10,7 +10,7 @@
 
 ![Main Menu](images/main-qm2.png)
 
-## 🚀 Quick Start
+## Quick Start
 
 ```bash
 pip install qm2
@@ -28,24 +28,24 @@ cd qm2
 pip install -e .
 ```
 
-## 📖 Overview
+## Overview
 
 **Quiz Maker 2 (QM2)** is a powerful, interactive terminal-based quiz application written in Python. It provides a comprehensive solution for creating, managing, and taking quizzes with multiple question types, advanced features like flashcards mode, score tracking, and extensive import/export capabilities.
 
-### ✨ Key Features
+### Key Features
 
-- 🧠 **4 Question Types**: Multiple Choice, True/False, Fill-in-the-blank, Matching
-- ⏱️ **Timed Quiz Sessions**: Customizable timeout settings with real-time feedback
-- 🃏 **Flashcards Mode**: Study mode for reviewing questions without scoring
-- 📊 **Score Tracking**: Comprehensive statistics and performance analytics
-- 📁 **Category Management**: Organize questions into hierarchical categories
-- 🔄 **Import/Export**: Convert between CSV and JSON formats
-- 🌐 **Remote Import**: Download quiz files directly from URLs
-- 🎨 **Rich Terminal UI**: Beautiful, colored interface using Rich library
-- ⚡ **Performance Optimized**: Caching system for large question sets
-- 🌍 **Cross-Platform**: Works on Windows, macOS, and Linux
+- **4 Question Types**: Multiple Choice, True/False, Fill-in-the-blank, Matching
+- **Timed Quiz Sessions**: Customizable timeout settings with real-time feedback
+- **Flashcards Mode**: Study mode for reviewing questions without scoring
+- **Score Tracking**: Comprehensive statistics and performance analytics
+- **Category Management**: Organize questions into hierarchical categories
+- **Import/Export**: Convert between CSV and JSON formats
+- **Remote Import**: Download quiz files directly from URLs
+- **Rich Terminal UI**: Beautiful, colored interface using Rich library
+- **Performance Optimized**: Caching system for large question sets
+- **Cross-Platform**: Works on Windows, macOS, and Linux
 
-## 📸 Screenshots
+## Screenshots
 
 ### Quiz Features
 
@@ -55,7 +55,7 @@ pip install -e .
 
 ![Tools](images/tools-qm2.png) ![Help](images/help-qm2.png)
 
-## 🛠️ Installation
+## Installation
 
 ### From PyPI (Recommended)
 
@@ -79,7 +79,7 @@ cd qm2
 pip install -e ".[dev]"
 ```
 
-## 🎯 Usage
+## Usage
 
 ### Basic Usage
 
@@ -104,7 +104,7 @@ qm2 --version
 qm2 --data-dir /path/to/data
 ```
 
-## 📚 Features in Detail
+## Features in Detail
 
 ### Question Types
 
@@ -132,7 +132,7 @@ qm2 --data-dir /path/to/data
 - **Memory Management**: Automatic cache cleanup
 - **Fast Loading**: Sub-second load times for thousands of questions
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 qm2/
@@ -153,7 +153,7 @@ qm2/
 └── LICENSE                 # MIT License
 ```
 
-## 🧪 Testing
+## Testing
 
 QM2 has comprehensive test coverage with **122 tests**:
 
@@ -180,7 +180,7 @@ pytest tests/test_performance.py # Performance tests
 - **Scores**: 22 tests (display, pagination, legacy normalization)
 - **Performance**: 12 tests (large datasets, memory, concurrent access)
 
-## 📊 Performance
+## Performance
 
 QM2 is optimized for performance:
 
@@ -189,7 +189,7 @@ QM2 is optimized for performance:
 - **Memory**: Efficient caching with automatic cleanup
 - **Concurrent**: Thread-safe operations
 
-## 🔧 Configuration
+## Configuration
 
 QM2 uses platformdirs for cross-platform data storage:
 
@@ -207,7 +207,7 @@ export QM2_DATA_DIR="/path/to/custom/data"
 export NO_COLOR=1
 ```
 
-## 📝 Question Format
+## Question Format
 
 ### JSON Format
 
@@ -253,7 +253,7 @@ fillin,"Capital of Italy is ______",Rome,"","","",""
 match,"Match items","","","A|B","1|2","a:1,b:2"
 ```
 
-## 🤝 Contributing
+## Contributing
 
 We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
 
@@ -282,23 +282,23 @@ isort src/ tests/
 flake8 src/ tests/
 ```
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - [Rich](https://github.com/Textualize/rich) - Beautiful terminal output
 - [Questionary](https://github.com/tmbo/questionary) - Interactive CLI prompts
 - [Platformdirs](https://github.com/platformdirs/platformdirs) - Cross-platform paths
 
-## 📞 Support
+## Support
 
-- 📧 **Email**: halvadzija.adnan@gmail.com
-- 🐛 **Issues**: [GitHub Issues](https://github.com/ahalvadzija/qm2/issues)
-- 📖 **Documentation**: [Wiki](https://github.com/ahalvadzija/qm2/wiki)
+- **Email**: halvadzija.adnan@gmail.com
+- **Issues**: [GitHub Issues](https://github.com/ahalvadzija/qm2/issues)
+- **Documentation**: [Wiki](https://github.com/ahalvadzija/qm2/wiki)
 
-## 🔗 Links
+## Links
 
 - **PyPI**: https://pypi.org/project/qm2/
 - **GitHub**: https://github.com/ahalvadzija/qm2
