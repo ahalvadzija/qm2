@@ -6,6 +6,8 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![pytest](https://img.shields.io/badge/pytest-122%20tests-brightgreen.svg)](https://github.com/ahalvadzija/qm2)
 
+![Main Menu](images/main-qm2.png)
+
 ## 🚀 Quick Start
 
 ```bash
@@ -43,14 +45,11 @@ pip install -e .
 
 ## 📸 Screenshots
 
-### Main Interface
-![Main Menu](images/main-qm2.png)
-
 ### Quiz Features
-![Gameplay](images/gameplay-qm2.png) | ![Flashcards](images/flashcards-qm2.png)
+![Gameplay](images/gameplay-qm2.png)  ![Flashcards](images/flashcards-qm2.png)
 
 ### Tools & Help
-![Tools](images/tools-qm2.png) | ![Help](images/help-qm2.png)
+![Tools](images/tools-qm2.png)  ![Help](images/help-qm2.png)
 
 ## 🛠️ Installation
 
