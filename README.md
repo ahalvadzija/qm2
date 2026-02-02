@@ -290,20 +290,17 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - [Rich](https://github.com/Textualize/rich) - Beautiful terminal output
 - [Questionary](https://github.com/tmbo/questionary) - Interactive CLI prompts
-- [Platformdirs](https://github.com/platformdirs/platformdirs) - Cross-platform paths
 
 ## Support
 
 - **Email**: halvadzija.adnan@gmail.com
 - **Issues**: [GitHub Issues](https://github.com/ahalvadzija/qm2/issues)
-- **Documentation**: [Wiki](https://github.com/ahalvadzija/qm2/wiki)
 
 ## Links
 
 - **PyPI**: https://pypi.org/project/qm2/
 - **GitHub**: https://github.com/ahalvadzija/qm2
-- **Documentation**: https://qm2.github.io/
-- **Changelog**: [CHANGELOG.md](CHANGELOG.md)
+- **Documentation**: https://ahalvadzija.github.io/qm2
 
 ---
 
