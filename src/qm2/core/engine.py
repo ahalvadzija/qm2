@@ -75,7 +75,12 @@ def _check_quit_confirmation(message: str = "Do you want to stop the quiz?") -> 
 
 def _handle_choice_question(q: dict[str, Any]) -> QuizResult:
     """Handle multiple choice or true/false question. Returns result type."""
-    options = [q["correct"]] + q["wrong_answers"]
+    # Ensure wrong_answers is always a list
+    wrong_answers = q["wrong_answers"]
+    if isinstance(wrong_answers, str):
+        wrong_answers = [wrong_answers]
+    
+    options = [q["correct"]] + wrong_answers
     random.shuffle(options)
     option_labels = list(string.ascii_lowercase)[: len(options)]
 
