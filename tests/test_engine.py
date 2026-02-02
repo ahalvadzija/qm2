@@ -1,7 +1,5 @@
 import pytest
-import time
-from unittest.mock import patch, MagicMock
-from pathlib import Path
+from unittest.mock import patch
 import qm2.core.engine as engine
 
 
@@ -150,7 +148,7 @@ def test_handle_choice_question_correct(mock_confirm, mock_input, sample_multipl
         mock_input.return_value = "a"
         mock_confirm.return_value.ask.return_value = False
         
-        with patch('qm2.core.engine.console') as mock_console:
+        with patch('qm2.core.engine.console'):
             result = engine._handle_choice_question(sample_multiple_choice_question)
             assert result == "correct"
 
@@ -168,7 +166,7 @@ def test_handle_choice_question_wrong(mock_confirm, mock_input, sample_multiple_
         mock_input.return_value = "b"
         mock_confirm.return_value.ask.return_value = False
         
-        with patch('qm2.core.engine.console') as mock_console:
+        with patch('qm2.core.engine.console'):
             result = engine._handle_choice_question(sample_multiple_choice_question)
             assert result == "wrong"
 
@@ -181,7 +179,7 @@ def test_handle_choice_question_timeout(mock_confirm, mock_input, sample_multipl
     mock_input.return_value = None
     mock_confirm.return_value.ask.return_value = False
     
-    with patch('qm2.core.engine.console') as mock_console:
+    with patch('qm2.core.engine.console'):
         result = engine._handle_choice_question(sample_multiple_choice_question)
         assert result == "timeout"
 
@@ -194,7 +192,7 @@ def test_handle_choice_question_quit(mock_confirm, mock_input, sample_multiple_c
     mock_input.return_value = "x"
     mock_confirm.return_value.ask.return_value = True  # Confirms quit
     
-    with patch('qm2.core.engine.console') as mock_console:
+    with patch('qm2.core.engine.console'):
         result = engine._handle_choice_question(sample_multiple_choice_question)
         assert result == "quit"
 
@@ -206,7 +204,7 @@ def test_handle_fillin_question_correct(mock_confirm, mock_input, sample_fill_in
     mock_input.return_value = "Tokyo"
     mock_confirm.return_value.ask.return_value = False
     
-    with patch('qm2.core.engine.console') as mock_console:
+    with patch('qm2.core.engine.console'):
         result = engine._handle_fillin_question(sample_fill_in_question)
         assert result == "correct"
 
@@ -218,7 +216,7 @@ def test_handle_fillin_question_case_insensitive(mock_confirm, mock_input, sampl
     mock_input.return_value = "tokyo"  # lowercase
     mock_confirm.return_value.ask.return_value = False
     
-    with patch('qm2.core.engine.console') as mock_console:
+    with patch('qm2.core.engine.console'):
         result = engine._handle_fillin_question(sample_fill_in_question)
         assert result == "correct"
 
@@ -230,7 +228,7 @@ def test_handle_fillin_question_wrong(mock_confirm, mock_input, sample_fill_in_q
     mock_input.return_value = "Osaka"
     mock_confirm.return_value.ask.return_value = False
     
-    with patch('qm2.core.engine.console') as mock_console:
+    with patch('qm2.core.engine.console'):
         result = engine._handle_fillin_question(sample_fill_in_question)
         assert result == "wrong"
 
@@ -243,7 +241,7 @@ def test_handle_match_question_correct(mock_confirm, mock_input, sample_matching
     mock_input.side_effect = ["1", "2", "3"]
     mock_confirm.return_value.ask.return_value = False
     
-    with patch('qm2.core.engine.console') as mock_console:
+    with patch('qm2.core.engine.console'):
         result = engine._handle_match_question(sample_matching_question)
         assert result == "correct"
 
@@ -256,7 +254,7 @@ def test_handle_match_question_wrong(mock_confirm, mock_input, sample_matching_q
     mock_input.side_effect = ["2", "1", "3"]
     mock_confirm.return_value.ask.return_value = False
     
-    with patch('qm2.core.engine.console') as mock_console:
+    with patch('qm2.core.engine.console'):
         result = engine._handle_match_question(sample_matching_question)
         assert result == "wrong"
 
@@ -269,7 +267,7 @@ def test_handle_match_question_timeout(mock_confirm, mock_input, sample_matching
     mock_input.return_value = None
     mock_confirm.return_value.ask.return_value = False
     
-    with patch('qm2.core.engine.console') as mock_console:
+    with patch('qm2.core.engine.console'):
         result = engine._handle_match_question(sample_matching_question)
         assert result == "timeout"
 
@@ -311,7 +309,7 @@ def test_quiz_session_skips_invalid_questions(temp_score_file):
         }
     ]
     
-    with patch('qm2.core.engine.console') as mock_console:
+    with patch('qm2.core.engine.console'):
         with patch('qm2.core.engine._handle_choice_question') as mock_handler:
             mock_handler.return_value = "correct"
             engine.quiz_session(questions, temp_score_file)

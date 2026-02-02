@@ -1,5 +1,4 @@
 import json
-from pathlib import Path
 import qm2.core.import_export as import_export
 
 

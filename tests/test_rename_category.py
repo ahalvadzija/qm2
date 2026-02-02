@@ -1,5 +1,4 @@
 import qm2.core.categories as categories
-from pathlib import Path
 
 
 class FakeQuestionary:

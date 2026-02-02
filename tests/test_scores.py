@@ -1,7 +1,6 @@
 import pytest
 import json
-from pathlib import Path
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 import qm2.core.scores as scores
 
 
@@ -429,7 +428,7 @@ def test_reset_scores_file_error():
                 
                 # Should show error message
                 calls = [str(call) for call in mock_console.print.call_args_list]
-                error_message = any("Failed to save" in call for call in calls)
+                any("Failed to save" in call for call in calls)
                 # Note: The current implementation doesn't show error on reset failure, 
                 # but this test documents the behavior
 

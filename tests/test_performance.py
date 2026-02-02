@@ -1,10 +1,8 @@
 import pytest
 import json
 import time
-import os
 import gc
 import sys
-from pathlib import Path
 from unittest.mock import patch, MagicMock
 import qm2.core.questions as questions
 import qm2.core.engine as engine

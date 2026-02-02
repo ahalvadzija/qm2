@@ -2,7 +2,7 @@ import pytest
 import json
 import time
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 import qm2.core.questions as questions
 
 
@@ -205,7 +205,7 @@ def test_create_question_matching():
     """Test create_question for matching type."""
     with patch('qm2.core.questions.questionary.select') as mock_select:
         with patch('qm2.core.questions.Prompt.ask') as mock_ask:
-            with patch('qm2.core.questions.console') as mock_console:
+            with patch('qm2.core.questions.console'):
                 # Mock user selecting matching
                 mock_select.return_value.ask.return_value = "4. Matching pairs"
                 
@@ -531,7 +531,7 @@ def test_delete_question_valid():
     
     try:
         with patch('qm2.core.questions.questionary.select') as mock_select:
-            with patch('qm2.core.questions.console') as mock_console:
+            with patch('qm2.core.questions.console'):
                 # Mock user selecting the first question
                 mock_select.return_value.ask.return_value = "Question to delete"
                 

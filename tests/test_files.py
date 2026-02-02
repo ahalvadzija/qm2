@@ -1,8 +1,7 @@
 import pytest
 import json
-import os
 from pathlib import Path
-from unittest.mock import patch, mock_open, MagicMock
+from unittest.mock import patch, mock_open
 import qm2.utils.files as files
 
 
@@ -188,7 +187,7 @@ def test_save_json_type_error():
     
     test_data = {"object": UnserializableObject()}
     
-    with patch('qm2.utils.files.console') as mock_console:
+    with patch('qm2.utils.files.console'):
         result = files.save_json("/some/file.json", test_data)
         
         assert result is False
