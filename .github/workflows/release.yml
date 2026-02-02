@@ -3,14 +3,14 @@ name: Release
 on:
   push:
     tags:
-      - "v*.*.*"   # svaka verzija tipa v1.0.0
+      - "v*.*.*" # Aktivira se na tagove tipa v1.0.0
 
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
     permissions:
-      id-token: write   # ✅ potrebno za Trusted Publishing
       contents: read
+      id-token: write # Potrebno ako pređeš na Trusted Publishing u budućnosti
 
     steps:
       - name: Checkout repo
@@ -39,4 +39,5 @@ jobs:
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
+          password: ${{ secrets.PYPI_API_TOKEN }}
           skip-existing: true

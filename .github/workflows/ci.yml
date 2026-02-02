@@ -4,6 +4,7 @@ on:
   push:
     branches: ["main"]
   pull_request:
+    branches: ["main"]
 
 jobs:
   test:
@@ -17,6 +18,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+          cache: 'pip' # Ubrzava instalaciju pri svakom run-u
 
       - name: Install dependencies
         run: |
@@ -24,9 +26,10 @@ jobs:
           pip install -e .
           pip install pytest ruff
 
-      - name: Lint (ruff)
-        run: ruff check src
+      - name: Lint with ruff
+        run: ruff check .
 
-      - name: Run tests (pytest)
+      - name: Run tests with pytest
+        env:
+          PYTHONPATH: src
         run: pytest -v
-
