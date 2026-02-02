@@ -5,8 +5,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![pytest](https://img.shields.io/badge/pytest-122%20tests-brightgreen.svg)](https://github.com/ahalvadzija/qm2)
 
-[![CI](https://github.com/ahalvadzija/qm2/actions/workflows/ci.yml/badge.svg)](https://github.com/ahalvadzija/qm2/actions/workflows/ci.yml)
-[![Release](https://github.com/ahalvadzija/qm2/actions/workflows/release.yml/badge.svg)](https://github.com/ahalvadzija/qm2/actions/workflows/release.yml)
+[![CI/CD Pipeline](https://github.com/ahalvadzija/qm2/actions/workflows/pipeline.yml/badge.svg)](https://github.com/ahalvadzija/qm2/actions/workflows/pipeline.yml)
 
 ![Main Menu](images/main-qm2.png)
 
