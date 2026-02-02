@@ -15,10 +15,12 @@ authors = [
 ]
 keywords = ["quiz", "cli", "education", "python"]
 classifiers = [
-    "Development Status :: 3 - Alpha",
-    "Programming Language :: Python :: 3",
+    "Development Status :: 4 - Beta",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
-    "Operating System :: POSIX :: Linux",
+    "Operating System :: OS Independent",
     "Environment :: Console",
     "Topic :: Education",
     "Topic :: Software Development :: Libraries :: Python Modules"
