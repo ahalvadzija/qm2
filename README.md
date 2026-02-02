@@ -299,7 +299,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - **PyPI**: https://pypi.org/project/qm2/
 - **GitHub**: https://github.com/ahalvadzija/qm2
-- **Documentation**: https://qm2.readthedocs.io/
+- **Documentation**: https://qm2.github.io/
 - **Changelog**: [CHANGELOG.md](CHANGELOG.md)
 
 ---
