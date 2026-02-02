@@ -4,7 +4,7 @@ import qm2.core.import_export as import_export
 
 
 def test_csv_to_json_and_back(tmp_path):
-    # 🔹 1. Kreiraj fake CSV fajl
+    # 🔹 1. Create fake CSV file
     csv_file = tmp_path / "sample.csv"
     csv_file.write_text(
         "type,question,correct,wrong_answers\n"
@@ -12,14 +12,14 @@ def test_csv_to_json_and_back(tmp_path):
         encoding="utf-8",
     )
 
-    # 🔹 2. Konverzija u JSON
+    # 🔹 2. Convert to JSON
     json_file = tmp_path / "sample.json"
     import_export.csv_to_json(csv_file, json_file)
     assert json_file.exists()
     data = json.loads(json_file.read_text(encoding="utf-8"))
     assert data[0]["question"] == "What is 2+2?"
 
-    # 🔹 3. Konverzija nazad u CSV
+    # 🔹 3. Convert back to CSV
     roundtrip_csv = tmp_path / "roundtrip.csv"
     import_export.json_to_csv(json_file, roundtrip_csv)
     assert roundtrip_csv.exists()
@@ -38,7 +38,7 @@ def test_download_remote(monkeypatch, tmp_path):
         lambda url, timeout=20: FakeResponse(b'[{"q":"2+2","a":"4"}]')
     )
 
-    # Patch prompt → vrati ime fajla
+    # Patch prompt → return file name
     monkeypatch.setattr(import_export, "Prompt", type("P", (), {
         "ask": staticmethod(lambda _: "math")
     }))
@@ -50,7 +50,7 @@ def test_download_remote(monkeypatch, tmp_path):
         })())
     }))
 
-    # Izvrši download
+    # Execute download
     dest = tmp_path / "categories"
     dest.mkdir()
     out = import_export.download_remote_file(
@@ -72,19 +72,19 @@ def test_download_remote_refuses_overwrite(monkeypatch, tmp_path):
         lambda url, timeout=20: FakeResponse(b'[{"q":"1+1","a":"2"}]')
     )
 
-    # Prompt → ime fajla
+    # Prompt → file name
     monkeypatch.setattr(import_export, "Prompt", type("P", (), {
         "ask": staticmethod(lambda _: "duplicate")
     }))
 
-    # Confirm → kaže NO (ne overwrite)
+    # Confirm → says NO (no overwrite)
     monkeypatch.setattr(import_export, "questionary", type("Q", (), {
         "confirm": staticmethod(lambda msg=None: type("C", (), {
             "ask": staticmethod(lambda : False)
         })())
     }))
 
-    # Napravi već postojeći fajl
+    # Create existing file
     dest = tmp_path / "categories"
     dest.mkdir()
     existing = dest / "duplicate.json"
@@ -95,6 +95,6 @@ def test_download_remote_refuses_overwrite(monkeypatch, tmp_path):
         "http://fake/file.json", dest
     )
 
-    # Pošto je korisnik odbio overwrite, rezultat je None
+    # Since user refused overwrite, result is None
     assert out is None
     assert existing.read_text(encoding="utf-8") == "[]"

@@ -7,9 +7,9 @@ from rich.prompt import Prompt
 
 def csv_to_json(csv_file: Path, json_file: Path) -> None:
     """
-    Konvertuje CSV fajl u JSON format.
+    Convert CSV file to JSON format.
 
-    Primjer:
+    Example:
     >>> import tempfile, json
     >>> from pathlib import Path
     >>> tmp = Path(tempfile.gettempdir())
@@ -34,9 +34,9 @@ def csv_to_json(csv_file: Path, json_file: Path) -> None:
 
 def json_to_csv(json_file: Path, csv_file: Path) -> None:
     """
-    Konvertuje JSON fajl nazad u CSV format.
+    Convert JSON file back to CSV format.
 
-    Primjer:
+    Example:
     >>> import tempfile, json, csv
     >>> from pathlib import Path
     >>> tmp = Path(tempfile.gettempdir())
@@ -55,7 +55,7 @@ def json_to_csv(json_file: Path, csv_file: Path) -> None:
         rows = json.load(f)
 
     if not rows:
-        raise ValueError("JSON je prazan")
+        raise ValueError("JSON is empty")
 
     with open(csv_file, "w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=rows[0].keys())
@@ -65,12 +65,12 @@ def json_to_csv(json_file: Path, csv_file: Path) -> None:
 
 def download_remote(url: str, dest_path: Path, overwrite: bool = False) -> Path:
     """
-    Core logika za preuzimanje fajla (CSV ili JSON) i snimanje na tačan put.
+    Core logic for downloading a file (CSV or JSON) and saving to the correct path.
 
     >>> import tempfile
     >>> from pathlib import Path
     >>> tmp = Path(tempfile.gettempdir()) / "remote.json"
-    >>> # Fake response (monkeypatch ili requests_mock u testu)
+    >>> # Fake response (monkeypatch or requests_mock in test)
     >>> isinstance(download_remote.__call__, object)  # doctest: +ELLIPSIS
     True
     """
@@ -86,22 +86,22 @@ def download_remote(url: str, dest_path: Path, overwrite: bool = False) -> Path:
 
 def download_remote_file(url: str, dest_dir: Path) -> Path | None:
     """
-    UI sloj za preuzimanje fajla:
-    - pita korisnika za ime fajla,
-    - provjerava overwrite,
-    - poziva core.download_remote
+    UI layer for file download:
+    - asks user for file name,
+    - checks overwrite,
+    - calls core.download_remote
 
-    (Doctest nije dat jer traži interakciju preko Prompt/confirm.)
+    (Doctest not provided as it requires interaction via Prompt/confirm.)
     """
-    name = Prompt.ask("Ime kategorije")
+    name = Prompt.ask("Category name")
     dest_dir = Path(dest_dir)
     dest_dir.mkdir(parents=True, exist_ok=True)
     dest_path = dest_dir / f"{name}.json"
 
     if dest_path.exists():
         if not questionary.confirm(
-            f"Fajl {dest_path.name} već postoji. Prepisati?"
+            f"File {dest_path.name} already exists. Overwrite?"
         ).ask():
-            return None  # korisnik odbio overwrite
+            return None  # user refused overwrite
 
     return download_remote(url, dest_path, overwrite=True)

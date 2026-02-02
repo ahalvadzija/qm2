@@ -48,12 +48,12 @@ SAFE_NAME = re.compile(r"^[a-zA-Z0-9._-]{1,64}$")
 
 def import_remote_file() -> None:
     """
-    Tanki UI wrapper koji:
-    - pita za URL
-    - pita kako da se fajl zove (bez ekstenzije)
-    - snima u ./categories/<name>.json ili .csv na osnovu URL-a
-    - pita za overwrite ako fajl već postoji
-    - pozove categories_add(...) i ispiše poruku
+    Thin UI wrapper that:
+    - asks for URL
+    - asks how to name the file (without extension)
+    - saves to ./categories/<name>.json or .csv based on URL
+    - asks for overwrite if file already exists
+    - calls categories_add(...) and prints message
     """
     url = Prompt.ask("🌐 Enter CSV/JSON URL").strip()
     base = Prompt.ask("💾 Save as (file name without extension)").strip()
@@ -62,7 +62,7 @@ def import_remote_file() -> None:
         console.print("[red]⚠️ Invalid file name.")
         return
 
-    # heuristika ekstenzije po URL-u
+    # extension heuristic based on URL
     ext = "json" if url.lower().endswith(".json") else "csv"
     dest_dir = Path(categories_root_dir())
     dest_dir.mkdir(parents=True, exist_ok=True)

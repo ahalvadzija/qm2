@@ -30,7 +30,7 @@ def show_logo() -> None:
 
 def show_help() -> None:
     try:
-        # čitanje help.json kao resursa unutar paketa
+        # reading help.json as a resource within the package
         with pkg_resources.files(qm2).joinpath("help.json").open("r", encoding="utf-8") as f:
             data = json.load(f)
     except Exception:

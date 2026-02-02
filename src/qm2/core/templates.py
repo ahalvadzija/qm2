@@ -10,8 +10,8 @@ from qm2.paths import CATEGORIES_DIR, CSV_DIR
 
 def create_csv_template(filename: str = "template.csv") -> Path:
     """
-    Kreira CSV template u aplikacijskom CSV direktoriju.
-    Vraća punu putanju do kreiranog fajla.
+    Create CSV template in the application CSV directory.
+    Returns full path to the created file.
     """
     CSV_DIR.mkdir(parents=True, exist_ok=True)
     path = CSV_DIR / filename
@@ -59,8 +59,8 @@ def create_csv_template(filename: str = "template.csv") -> Path:
 
 def create_json_template(filename: str = "example_template.json") -> Path:
     """
-    Kreira JSON template u CATEGORIES_DIR/templates.
-    Vraća punu putanju do kreiranog fajla.
+    Create JSON template in CATEGORIES_DIR/templates.
+    Returns full path to the created file.
     """
     folder = CATEGORIES_DIR / "templates"
     folder.mkdir(parents=True, exist_ok=True)

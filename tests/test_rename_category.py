@@ -25,9 +25,9 @@ def test_rename_category_normalizes_extension(monkeypatch, tmp_path):
 
     # fake get_categories
     monkeypatch.setattr(categories, "get_categories", lambda: ["old.json"])
-    # patchamo baš modul gdje se koristi questionary
+    # patch the module where questionary is used
     monkeypatch.setattr("qm2.core.categories.questionary", FakeQuestionary("old.json"))
-    # fake Prompt.ask -> korisnik unese "new.json"
+    # fake Prompt.ask -> user enters "new.json"
     monkeypatch.setattr(categories, "Prompt", type("P", (), {"ask": staticmethod(lambda _: "new.json")}))
     # fake console
     monkeypatch.setattr(categories, "console", type("C", (), {"print": staticmethod(lambda *a, **k: None)}))

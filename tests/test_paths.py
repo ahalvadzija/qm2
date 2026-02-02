@@ -23,7 +23,7 @@ def test_migrate_scores_from_home(tmp_path, monkeypatch):
     # 🔹 4. Run migration
     paths.migrate_legacy_paths()
 
-    # 🐞 DEBUG: ispiši šta se desilo
+    # 🐞 DEBUG: print what happened
     print("\nTMP PATH:", tmp_path)
     print("FILES AFTER MIGRATION:", list(tmp_path.rglob("*")))
 
@@ -53,7 +53,7 @@ def test_migrate_categories_from_cwd(tmp_path, monkeypatch):
     # 🔹 4. Run migration
     paths.migrate_legacy_paths()
 
-    # 🐞 DEBUG: ispiši stanje
+    # 🐞 DEBUG: print state
     print("\nTMP PATH:", tmp_path)
     print("FILES AFTER MIGRATION:", list(tmp_path.rglob("*")))
 
