@@ -44,13 +44,13 @@ pip install -e .
 ## 📸 Screenshots
 
 ### Main Interface
-![Main Menu](https://github.com/user-attachments/assets/2d563a0a-9790-4c8c-918f-118ff8bbed20)
+![Main Menu](images/main-qm2.png)
 
 ### Quiz Features
-![Quiz Session](https://github.com/user-attachments/assets/e016f42a-a26f-4dc7-8688-31789e70de31)
+![Gameplay](images/gameplay-qm2.png) | ![Flashcards](images/flashcards-qm2.png)
 
-### Tools & Statistics
-![Tools](https://github.com/user-attachments/assets/aba9f90c-2ec7-42a1-be7f-66907ebad0dd) | ![Statistics](https://github.com/user-attachments/assets/9c75d1e0-a748-40de-ae41-757461ec9dd1)
+### Tools & Help
+![Tools](images/tools-qm2.png) | ![Help](images/help-qm2.png)
 
 ## 🛠️ Installation
 
