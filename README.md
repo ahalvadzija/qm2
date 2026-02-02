@@ -43,14 +43,14 @@ pip install -e .
 
 ## 📸 Screenshots
 
-### Main Menu
+### Main Interface
 ![Main Menu](https://github.com/user-attachments/assets/2d563a0a-9790-4c8c-918f-118ff8bbed20)
 
-### Quiz Session
+### Quiz Features
 ![Quiz Session](https://github.com/user-attachments/assets/e016f42a-a26f-4dc7-8688-31789e70de31)
 
-### Statistics
-![Statistics](https://github.com/user-attachments/assets/9c75d1e0-a748-40de-ae41-757461ec9dd1)
+### Tools & Statistics
+![Tools](https://github.com/user-attachments/assets/aba9f90c-2ec7-42a1-be7f-66907ebad0dd) | ![Statistics](https://github.com/user-attachments/assets/9c75d1e0-a748-40de-ae41-757461ec9dd1)
 
 ## 🛠️ Installation
 
@@ -162,6 +162,7 @@ pytest tests/test_performance.py # Performance tests
 ```
 
 ### Test Coverage
+
 - **Engine**: 23 tests (all question types, timeout, quit, flashcards)
 - **Questions**: 25 tests (CRUD, caching, pagination, validation)
 - **Files**: 27 tests (JSON handling, encoding, errors, performance)
@@ -186,6 +187,7 @@ QM2 uses platformdirs for cross-platform data storage:
 - **Windows**: `%APPDATA%\qm2\`
 
 ### Environment Variables
+
 ```bash
 # Custom data directory
 export QM2_DATA_DIR="/path/to/custom/data"
@@ -197,39 +199,41 @@ export NO_COLOR=1
 ## 📝 Question Format
 
 ### JSON Format
+
 ```json
 [
-  {
-    "type": "multiple",
-    "question": "What is the capital of France?",
-    "correct": "Paris",
-    "wrong_answers": ["Rome", "Berlin", "Madrid"]
-  },
-  {
-    "type": "truefalse",
-    "question": "Python is a programming language.",
-    "correct": "True",
-    "wrong_answers": ["False"]
-  },
-  {
-    "type": "fillin",
-    "question": "The capital of Japan is ______.",
-    "correct": "Tokyo",
-    "wrong_answers": []
-  },
-  {
-    "type": "match",
-    "question": "Match programming languages with their types",
-    "pairs": {
-      "left": ["Python", "JavaScript", "C++"],
-      "right": ["Interpreted", "Web scripting", "Compiled"],
-      "answers": {"a": "1", "b": "2", "c": "3"}
+    {
+        "type": "multiple",
+        "question": "What is the capital of France?",
+        "correct": "Paris",
+        "wrong_answers": ["Rome", "Berlin", "Madrid"]
+    },
+    {
+        "type": "truefalse",
+        "question": "Python is a programming language.",
+        "correct": "True",
+        "wrong_answers": ["False"]
+    },
+    {
+        "type": "fillin",
+        "question": "The capital of Japan is ______.",
+        "correct": "Tokyo",
+        "wrong_answers": []
+    },
+    {
+        "type": "match",
+        "question": "Match programming languages with their types",
+        "pairs": {
+            "left": ["Python", "JavaScript", "C++"],
+            "right": ["Interpreted", "Web scripting", "Compiled"],
+            "answers": { "a": "1", "b": "2", "c": "3" }
+        }
     }
-  }
 ]
 ```
 
 ### CSV Format
+
 ```csv
 type,question,correct,wrong_answers,left,right,answers
 multiple,"What is 2+2?",4,"3,5,6","","",""
@@ -243,6 +247,7 @@ match,"Match items","","","A|B","1|2","a:1,b:2"
 We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
 
 ### Development Setup
+
 ```bash
 git clone https://github.com/ahalvadzija/qm2.git
 cd qm2
@@ -252,12 +257,14 @@ pip install -e ".[dev]"
 ```
 
 ### Running Tests
+
 ```bash
 pytest tests/ -v
 pytest --cov=qm2 tests/
 ```
 
 ### Code Style
+
 ```bash
 black src/ tests/
 isort src/ tests/
@@ -292,4 +299,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 **Created by**: [Adnan Halvadžija](https://github.com/ahalvadzija)
 
 **⭐ If you find this project useful, please give it a star on GitHub!**
-
