@@ -140,13 +140,19 @@ def test_is_valid_question_matching_invalid():
 @patch('qm2.core.engine.questionary.confirm')
 def test_handle_choice_question_correct(mock_confirm, mock_input, sample_multiple_choice_question):
     """Test _handle_choice_question with correct answer."""
-    # Mock user selects correct option (assuming 'a' is correct)
-    mock_input.return_value = "a"
-    mock_confirm.return_value.ask.return_value = False
-    
-    with patch('qm2.core.engine.console') as mock_console:
-        result = engine._handle_choice_question(sample_multiple_choice_question)
-        assert result == "correct"
+    # Mock user selects correct option - we need to determine which letter is correct
+    # Since options are shuffled, we'll mock the shuffle to be predictable
+    with patch('qm2.core.engine.random.shuffle') as mock_shuffle:
+        # Force a predictable order: [correct, wrong1, wrong2, wrong3]
+        mock_shuffle.side_effect = lambda x: None  # Don't shuffle
+        
+        # Now 'a' should be the correct answer
+        mock_input.return_value = "a"
+        mock_confirm.return_value.ask.return_value = False
+        
+        with patch('qm2.core.engine.console') as mock_console:
+            result = engine._handle_choice_question(sample_multiple_choice_question)
+            assert result == "correct"
 
 
 @patch('qm2.core.engine.input_with_timeout')
@@ -154,12 +160,17 @@ def test_handle_choice_question_correct(mock_confirm, mock_input, sample_multipl
 def test_handle_choice_question_wrong(mock_confirm, mock_input, sample_multiple_choice_question):
     """Test _handle_choice_question with wrong answer."""
     # Mock user selects wrong option
-    mock_input.return_value = "b"
-    mock_confirm.return_value.ask.return_value = False
-    
-    with patch('qm2.core.engine.console') as mock_console:
-        result = engine._handle_choice_question(sample_multiple_choice_question)
-        assert result == "wrong"
+    with patch('qm2.core.engine.random.shuffle') as mock_shuffle:
+        # Force a predictable order: [correct, wrong1, wrong2, wrong3]
+        mock_shuffle.side_effect = lambda x: None  # Don't shuffle
+        
+        # Now 'b' should be a wrong answer
+        mock_input.return_value = "b"
+        mock_confirm.return_value.ask.return_value = False
+        
+        with patch('qm2.core.engine.console') as mock_console:
+            result = engine._handle_choice_question(sample_multiple_choice_question)
+            assert result == "wrong"
 
 
 @patch('qm2.core.engine.input_with_timeout')
@@ -190,76 +201,76 @@ def test_handle_choice_question_quit(mock_confirm, mock_input, sample_multiple_c
 
 @patch('qm2.core.engine.input_with_timeout')
 @patch('qm2.core.engine.questionary.confirm')
-def test_handle_fill_in_question_correct(mock_confirm, mock_input, sample_fill_in_question):
-    """Test _handle_fill_in_question with correct answer."""
+def test_handle_fillin_question_correct(mock_confirm, mock_input, sample_fill_in_question):
+    """Test _handle_fillin_question with correct answer."""
     mock_input.return_value = "Tokyo"
     mock_confirm.return_value.ask.return_value = False
     
     with patch('qm2.core.engine.console') as mock_console:
-        result = engine._handle_fill_in_question(sample_fill_in_question)
+        result = engine._handle_fillin_question(sample_fill_in_question)
         assert result == "correct"
 
 
 @patch('qm2.core.engine.input_with_timeout')
 @patch('qm2.core.engine.questionary.confirm')
-def test_handle_fill_in_question_case_insensitive(mock_confirm, mock_input, sample_fill_in_question):
-    """Test _handle_fill_in_question with case insensitive matching."""
+def test_handle_fillin_question_case_insensitive(mock_confirm, mock_input, sample_fill_in_question):
+    """Test _handle_fillin_question with case insensitive matching."""
     mock_input.return_value = "tokyo"  # lowercase
     mock_confirm.return_value.ask.return_value = False
     
     with patch('qm2.core.engine.console') as mock_console:
-        result = engine._handle_fill_in_question(sample_fill_in_question)
+        result = engine._handle_fillin_question(sample_fill_in_question)
         assert result == "correct"
 
 
 @patch('qm2.core.engine.input_with_timeout')
 @patch('qm2.core.engine.questionary.confirm')
-def test_handle_fill_in_question_wrong(mock_confirm, mock_input, sample_fill_in_question):
-    """Test _handle_fill_in_question with wrong answer."""
+def test_handle_fillin_question_wrong(mock_confirm, mock_input, sample_fill_in_question):
+    """Test _handle_fillin_question with wrong answer."""
     mock_input.return_value = "Osaka"
     mock_confirm.return_value.ask.return_value = False
     
     with patch('qm2.core.engine.console') as mock_console:
-        result = engine._handle_fill_in_question(sample_fill_in_question)
+        result = engine._handle_fillin_question(sample_fill_in_question)
         assert result == "wrong"
 
 
 @patch('qm2.core.engine.input_with_timeout')
 @patch('qm2.core.engine.questionary.confirm')
-def test_handle_matching_question_correct(mock_confirm, mock_input, sample_matching_question):
-    """Test _handle_matching_question with correct answers."""
+def test_handle_match_question_correct(mock_confirm, mock_input, sample_matching_question):
+    """Test _handle_match_question with correct answers."""
     # Mock correct matching: a-1, b-2, c-3
     mock_input.side_effect = ["1", "2", "3"]
     mock_confirm.return_value.ask.return_value = False
     
     with patch('qm2.core.engine.console') as mock_console:
-        result = engine._handle_matching_question(sample_matching_question)
+        result = engine._handle_match_question(sample_matching_question)
         assert result == "correct"
 
 
 @patch('qm2.core.engine.input_with_timeout')
 @patch('qm2.core.engine.questionary.confirm')
-def test_handle_matching_question_wrong(mock_confirm, mock_input, sample_matching_question):
-    """Test _handle_matching_question with wrong answers."""
+def test_handle_match_question_wrong(mock_confirm, mock_input, sample_matching_question):
+    """Test _handle_match_question with wrong answers."""
     # Mock wrong matching: a-2, b-1, c-3
     mock_input.side_effect = ["2", "1", "3"]
     mock_confirm.return_value.ask.return_value = False
     
     with patch('qm2.core.engine.console') as mock_console:
-        result = engine._handle_matching_question(sample_matching_question)
+        result = engine._handle_match_question(sample_matching_question)
         assert result == "wrong"
 
 
 @patch('qm2.core.engine.input_with_timeout')
 @patch('qm2.core.engine.questionary.confirm')
-def test_handle_matching_question_timeout(mock_confirm, mock_input, sample_matching_question):
-    """Test _handle_matching_question with timeout."""
+def test_handle_match_question_timeout(mock_confirm, mock_input, sample_matching_question):
+    """Test _handle_match_question with timeout."""
     # Mock timeout on first input
     mock_input.return_value = None
     mock_confirm.return_value.ask.return_value = False
     
     with patch('qm2.core.engine.console') as mock_console:
-        result = engine._handle_matching_question(sample_matching_question)
+        result = engine._handle_match_question(sample_matching_question)
         assert result == "timeout"
 
 
