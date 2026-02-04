@@ -14,7 +14,7 @@ def main():
     parser.add_argument(
         "-v", "--version", 
         action="version", 
-        version="qm2 1.0.11" # Update this whenever you bump version
+        version="qm2 1.0.12" # Update this whenever you bump version
     )
     
     # Add --data-dir (even if you don't use it yet in app.main, 
