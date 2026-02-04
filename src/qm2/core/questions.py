@@ -375,14 +375,20 @@ def edit_question_by_index(
 
 def _delete_question_core(category_file: str, index: int) -> bool:
     questions = load_json(category_file)
-    if not isinstance(questions, list) or not (0 <= index < len(questions)):
-        console.print("[red]Invalid question index.[/red]")
+    
+    actual_index = index - 1
+    
+    if not isinstance(questions, list) or not (0 <= actual_index < len(questions)):
+        console.print(f"[red]⚠️ Invalid question index: {index}[/red]")
         return False
-    removed = questions.pop(index)
+        
+    removed = questions.pop(actual_index)
+    
     if save_json(category_file, questions):
-        console.print(f"[green]Deleted:[/green] {removed.get('question', '<no text>')}")
+        console.print(f"[green]✅ Deleted:[/green] {removed.get('question', '<no text>')}")
         return True
-    console.print("[red]Failed to save updated questions.[/red]")
+    
+    console.print("[red]❌ Failed to save updated questions.[/red]")
     return False
 
 def delete_question_by_index(category_file: str, index: int) -> None:
@@ -390,16 +396,22 @@ def delete_question_by_index(category_file: str, index: int) -> None:
 
 
 def delete_question(category_file: str) -> None:
+    """Select a question from the list and delete it from the file."""
     questions = load_json(category_file)
     if not questions:
         console.print("[red]No questions to delete.[/red]")
         return
 
+    # Extracting question texts for the selection menu
     choices = [q.get("question", "<no text>") for q in questions]
     choice = questionary.select("Select a question to delete:", choices=choices).ask()
+    
+    # Handle user cancellation
     if not choice:
         return
 
-    index = choices.index(choice)
+    # Fix: choices.index(choice) returns a 0-based index.
+    # We add +1 because _delete_question_core expects a 1-based index 
+    # to perform its internal 'index - 1' calculation.
+    index = choices.index(choice) + 1 
     _delete_question_core(category_file, index)
-

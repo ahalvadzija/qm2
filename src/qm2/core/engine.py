@@ -25,14 +25,23 @@ console = Console()
 QuizResult = Literal["correct", "wrong", "timeout", "quit"]
 
 
-def _is_valid_question(q: dict[str, Any]) -> bool:
-    """Validate question structure before use. Prevents KeyError/TypeError."""
+def _is_valid_question(q: Any) -> bool:
+    """Return True if q has the minimal structure to be used in a quiz."""
+    import json
+    
     if not isinstance(q, dict):
         return False
     if "type" not in q or "question" not in q:
         return False
     if q["type"] == "match":
         pairs = q.get("pairs", {})
+        # Handle pairs as string (from CSV) or dict
+        if isinstance(pairs, str):
+            try:
+                pairs = json.loads(pairs)
+            except (json.JSONDecodeError, TypeError):
+                return False
+        
         return bool(
             pairs.get("left") and pairs.get("right") and pairs.get("answers")
         )
@@ -88,7 +97,9 @@ def _handle_choice_question(q: dict[str, Any]) -> QuizResult:
     table.add_column("Option", style="cyan")
     table.add_column("Answer")
     for label, option in zip(option_labels, options, strict=False):
-        table.add_row(label, option)
+        # Convert option to string to handle boolean values
+        option_str = str(option) if not isinstance(option, str) else option
+        table.add_row(label, option_str)
     console.print(table)
 
     remaining_time = 60
@@ -120,7 +131,7 @@ def _handle_choice_question(q: dict[str, Any]) -> QuizResult:
 
         if answer in option_labels:
             selected = options[option_labels.index(answer)]
-            if selected.lower().strip() == q["correct"].lower().strip():
+            if str(selected).lower().strip() == str(q["correct"]).lower().strip():
                 console.print("[green]✅ Correct!")
                 return "correct"
             console.print(f"[red]❌ Wrong. The correct answer is: [bold]{q['correct']}[/]")
@@ -158,7 +169,7 @@ def _handle_fillin_question(q: dict[str, Any]) -> QuizResult:
                 return "quit"
             continue
 
-        if answer.lower() == q["correct"].lower():
+        if answer.lower() == str(q["correct"]).lower():
             console.print("[green]✅ Correct!")
             return "correct"
         console.print(f"[red]❌ Wrong. The correct answer is: [bold]{q['correct']}[/]")
@@ -167,7 +178,17 @@ def _handle_fillin_question(q: dict[str, Any]) -> QuizResult:
 
 def _handle_match_question(q: dict[str, Any]) -> QuizResult:
     """Handle matching question. Returns result type."""
+    import json
+    
     pairs = q.get("pairs", {})
+    # Handle pairs as string (from CSV) or dict
+    if isinstance(pairs, str):
+        try:
+            pairs = json.loads(pairs)
+        except (json.JSONDecodeError, TypeError):
+            console.print("[red]⚠️ Matching question has invalid pairs format.")
+            return "wrong"
+    
     left = pairs.get("left", [])
     right = pairs.get("right", [])
     correct_mapping = pairs.get("answers", {})
@@ -338,7 +359,17 @@ def flashcards_mode(questions: list[dict[str, Any]]) -> None:
                 break
 
         if q["type"] == "match":
+            import json
+            
             pairs = q.get("pairs", {})
+            # Handle pairs as string (from CSV) or dict
+            if isinstance(pairs, str):
+                try:
+                    pairs = json.loads(pairs)
+                except (json.JSONDecodeError, TypeError):
+                    console.print("[red]⚠️ Invalid matching format in flashcard.")
+                    continue
+            
             left = pairs.get("left", [])
             right = pairs.get("right", [])
             correct = pairs.get("answers", {})

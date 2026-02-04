@@ -11,10 +11,11 @@ from rich.console import Console
 from rich.prompt import Prompt
 
 from qm2 import paths
-from qm2.core.categories import create_new_category, delete_category, categories_root_dir, rename_category
+from qm2.core.categories import create_new_category, delete_category, categories_root_dir, csv_root_dir, rename_category, refresh_categories_cache, refresh_csv_cache
 from qm2.core.import_export import csv_to_json as core_csv_to_json, json_to_csv as core_json_to_csv, download_remote as core_download_remote
 from qm2.core.templates import create_csv_template, create_json_template
 from qm2.core.engine import quiz_session, flashcards_mode
+from qm2.core.validation import is_file_valid, show_validation_errors
 
 from qm2.core.categories import (
     get_categories,
@@ -51,7 +52,7 @@ def import_remote_file() -> None:
     Thin UI wrapper that:
     - asks for URL
     - asks how to name the file (without extension)
-    - saves to ./categories/<name>.json or .csv based on URL
+    - saves to correct directory based on file type
     - asks for overwrite if file already exists
     - calls categories_add(...) and prints message
     """
@@ -62,9 +63,46 @@ def import_remote_file() -> None:
         console.print("[red]⚠️ Invalid file name.")
         return
 
-    # extension heuristic based on URL
-    ext = "json" if url.lower().endswith(".json") else "csv"
-    dest_dir = Path(categories_root_dir())
+    # Determine file type by extension or content-type
+    ext = None
+    if url.lower().endswith(".csv"):
+        ext = "csv"
+    elif url.lower().endswith(".json"):
+        ext = "json"
+    else:
+        # Try to detect by content-type
+        try:
+            import requests
+            response = requests.head(url, timeout=10, allow_redirects=True)
+            content_type = response.headers.get('content-type', '').lower()
+            
+            if 'csv' in content_type:
+                ext = "csv"
+            elif 'json' in content_type:
+                ext = "json"
+            else:
+                # If still unknown, ask user
+                ext = questionary.select(
+                    "🔍 Could not detect file type. Please choose:",
+                    choices=["CSV", "JSON"]
+                ).ask().lower()
+        except Exception:
+            # If HEAD request fails, ask user
+            ext = questionary.select(
+                "🔍 Could not detect file type. Please choose:",
+                choices=["CSV", "JSON"]
+            ).ask().lower()
+    
+    if ext not in ["csv", "json"]:
+        console.print("[red]⚠️ Unsupported file type. Only CSV and JSON are supported.")
+        return
+
+    # Set destination directory based on file type
+    if ext == "csv":
+        dest_dir = Path(csv_root_dir())  # CSV files go to CSV directory
+    else:  # ext == "json"
+        dest_dir = Path(categories_root_dir())  # JSON files go to categories directory
+    
     dest_dir.mkdir(parents=True, exist_ok=True)
     dest_path = dest_dir / f"{base}.{ext}"
 
@@ -81,8 +119,25 @@ def import_remote_file() -> None:
         console.print(f"[red]⚠️ Download failed: {e}")
         return
 
-    categories_add(str(saved))
-    console.print(f"[green]✅ File downloaded and saved as:\n{saved}")
+    # Validate downloaded file
+    console.print(f"[cyan]🔍 Validating downloaded {ext.upper()} file[/cyan]")
+    if not is_file_valid(saved, ext):
+        console.print(f"[red]❌ Downloaded {ext.upper()} file is invalid. The file was not added.[/red]")
+        # Remove invalid file
+        try:
+            saved.unlink()
+        except:
+            pass
+        return
+
+    # Only add to categories cache for JSON files
+    if ext == "json":
+        categories_add(str(saved))
+        refresh_categories_cache()  # Refresh categories cache
+        console.print(f"[green]✅ JSON file downloaded and added to categories:\n{saved}")
+    else:
+        refresh_csv_cache()  # Refresh CSV cache
+        console.print(f"[green]✅ CSV file downloaded to:\n{saved}")
 
 
 def _handle_quiz_choice(score_file: str) -> None:
@@ -193,6 +248,12 @@ def _handle_questions_menu() -> None:
     """Handle 'Questions' menu option."""
     while True:
         categories_choices = get_categories()
+        
+        # Check if there are no categories
+        if not categories_choices:
+            console.print("[yellow]⚠️ No categories found.")
+            return
+        
         categories_choices += [
             Choice("──────────── MANAGE ────────────", disabled="✖"),
             "🛠️ Manage categories",
@@ -258,8 +319,15 @@ def _handle_csv_to_json() -> None:
     src_csv = os.path.join(csv_dir, csv_choice)
     out_json = os.path.join(folder_path, f"{base}.json")
 
+    # Validate CSV before conversion
+    console.print(f"[cyan]🔍 Validating CSV file: {csv_choice}[/cyan]")
+    if not is_file_valid(Path(src_csv), "csv"):
+        console.print("[red]❌ CSV validation failed. Please fix the errors and try again.[/red]")
+        return
+
     core_csv_to_json(Path(src_csv), Path(out_json))
     categories_add(out_json)
+    refresh_categories_cache()  # Refresh categories cache
     console.print(f"[green]✅ CSV converted to JSON and saved as: [bold]{out_json}[/]")
 
 
@@ -285,7 +353,14 @@ def _handle_json_to_csv() -> None:
     csv_name = os.path.splitext(os.path.basename(src_json))[0] + ".csv"
     out_csv = os.path.join(csv_dir, csv_name)
 
+    # Validate JSON before conversion
+    console.print(f"[cyan]🔍 Validating JSON file: {rel_choice}[/cyan]")
+    if not is_file_valid(Path(src_json), "json"):
+        console.print("[red]❌ JSON validation failed. Please fix the errors and try again.[/red]")
+        return
+
     core_json_to_csv(Path(src_json), Path(out_csv))
+    refresh_csv_cache()  # Refresh CSV cache
     console.print(f"[green]✅ JSON successfully exported to CSV: [bold]{out_csv}[/]")
 
 
@@ -313,10 +388,12 @@ def _handle_tools_menu() -> None:
             _handle_json_to_csv()
         elif tools_choice == "📄 Create CSV template":
             path = create_csv_template()
+            refresh_csv_cache()  # Refresh CSV cache
             console.print(f"[green]✅ CSV template created at: [bold]{path}[/]")
         elif tools_choice == "📄 Create JSON template":
             path = create_json_template()
-            console.print(f"[green]✅ JSON template created: [bold]{path}[/]")
+            refresh_categories_cache()  # Refresh categories cache
+            console.print(f"[green]✅ JSON template created at: [bold]{path}[/]")
         elif tools_choice == "🌐 Import remote CSV/JSON":
             import_remote_file()
 

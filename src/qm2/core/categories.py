@@ -24,6 +24,16 @@ def csv_root_dir() -> str:
     """Return the CSV directory (platformdirs-based)."""
     return str(CSV_DIR)
 
+def refresh_csv_cache() -> list[str]:
+    """Get list of CSV files (no caching for now)."""
+    try:
+        return [
+            f.name for f in os.scandir(csv_root_dir())
+            if f.is_file() and f.name.endswith(".csv")
+        ]
+    except (FileNotFoundError, PermissionError):
+        return []
+
 def get_categories(
     use_cache: bool = True, root_dir: str | None = None
 ) -> list[str]:
@@ -89,6 +99,7 @@ def create_new_category(root_dir: str | None = None) -> None:
     os.makedirs(os.path.dirname(path), exist_ok=True)
     save_json(path, [])
     categories_add(path)
+    refresh_categories_cache()  # Refresh cache after creation
     console.print(f"[green]✅ New category created: {path}")
 
 def save_category_file(path: str, data: list[Any] | dict[str, Any]) -> bool:
@@ -134,7 +145,9 @@ def rename_category(root_dir: str | None = None) -> None:
 
     try:
         os.rename(old_path, new_path)
+        console.print("[DEBUG] About to rename file")
         categories_rename(choice, os.path.relpath(new_path, root_dir))
+        refresh_categories_cache()  # Refresh cache after rename
         console.print(f"[green]✅ Category renamed: {new_path}")
     except OSError as e:
         console.print(f"[red]⚠️ Error renaming file: {e}")
@@ -172,6 +185,7 @@ def delete_category(root_dir: str | None = None) -> None:
         try:
             os.remove(path)
             categories_remove(choice)
+            refresh_categories_cache()  # Refresh cache after deletion
             console.print(f"[red]❌ Category deleted: {choice}")
         except OSError as e:
             console.print(f"[red]⚠️ Error deleting file: {e}")
@@ -245,6 +259,7 @@ def delete_json_quiz_file(root_dir: str | None = None) -> None:
         try:
             os.remove(file_to_delete)
             categories_remove(choice)
+            refresh_categories_cache()  # Refresh cache after deletion
             console.print(f"[red]🗑️ File '{choice}' deleted.")
         except OSError as e:
             console.print(f"[red]⚠️ Error deleting file: {e}")
