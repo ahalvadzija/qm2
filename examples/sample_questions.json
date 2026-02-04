@@ -1,0 +1,49 @@
+[
+  {
+    "type": "multiple",
+    "question": "What is the capital of France?",
+    "correct": "Paris",
+    "wrong_answers": [
+      "Rome",
+      "Berlin",
+      "Madrid"
+    ],
+    "pairs": {}
+  },
+  {
+    "type": "truefalse",
+    "question": "The Sun is a star.",
+    "correct": "True",
+    "wrong_answers": [
+      false
+    ],
+    "pairs": {}
+  },
+  {
+    "type": "fillin",
+    "question": "The capital of Japan is ______.",
+    "correct": "Tokyo",
+    "wrong_answers": [],
+    "pairs": {}
+  },
+  {
+    "type": "match",
+    "question": "Match technologies",
+    "correct": "",
+    "wrong_answers": [],
+    "pairs": {
+      "left": [
+        "Python",
+        "HTML"
+      ],
+      "right": [
+        "Programming language",
+        "Markup language"
+      ],
+      "answers": {
+        "a": "1",
+        "b": "2"
+      }
+    }
+  }
+]

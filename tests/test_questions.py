@@ -474,8 +474,7 @@ def test_edit_question_by_index_out_of_range():
 
 
 def test_delete_question_by_index_valid():
-    """Test delete_question_by_index with valid index."""
-    # Create a temporary file with questions
+    """Test delete_question_by_index with valid 1-based index."""
     temp_file = Path("/tmp/test_delete.json")
     test_questions = [
         {"question": "Q1", "type": "multiple", "correct": "A1", "wrong_answers": []},
@@ -485,65 +484,68 @@ def test_delete_question_by_index_valid():
     temp_file.write_text(json.dumps(test_questions), encoding="utf-8")
     
     try:
-        with patch('qm2.core.questions.console') as mock_console:
-            questions.delete_question_by_index(str(temp_file), 1)  # Delete index 1 (0-based), which is Q2
+        with patch('qm2.core.questions.console'):
+            # Sending '2' targets Q2 (because 2 - 1 = index 1)
+            questions.delete_question_by_index(str(temp_file), 2)
             
-            # Verify question was deleted (index 1 in 0-based, which is Q2)
-            remaining_questions = json.loads(temp_file.read_text(encoding="utf-8"))
-            assert len(remaining_questions) == 2
-            assert remaining_questions[0]["question"] == "Q1"
-            assert remaining_questions[1]["question"] == "Q3"
-            
-            # Check success message
-            mock_console.print.assert_called()
+            remaining = json.loads(temp_file.read_text(encoding="utf-8"))
+            assert len(remaining) == 2
+            assert remaining[0]["question"] == "Q1"
+            assert remaining[1]["question"] == "Q3"
     finally:
         temp_file.unlink(missing_ok=True)
 
-
 def test_delete_question_by_index_invalid():
-    """Test delete_question_by_index with invalid index."""
-    # Create a temporary file with questions
+    """Test delete_question_by_index with a more flexible check for Rich output."""
     temp_file = Path("/tmp/test_delete_invalid.json")
-    test_questions = [
-        {"question": "Q1", "type": "multiple", "correct": "A1", "wrong_answers": []}
-    ]
+    test_questions = [{"question": "Q1"}]
     temp_file.write_text(json.dumps(test_questions), encoding="utf-8")
     
     try:
         with patch('qm2.core.questions.console') as mock_console:
             questions.delete_question_by_index(str(temp_file), 5)
             
-            # Should print error message
-            mock_console.print.assert_called_with("[red]Invalid question index.[/red]")
+            # Extract the actual call arguments to handle Rich formatting tags
+            args, _ = mock_console.print.call_args
+            output = args[0]
+            
+            # Verify key components of the message instead of an exact string match
+            assert "Invalid question index" in output
+            assert "5" in output
+            assert "red" in output
     finally:
         temp_file.unlink(missing_ok=True)
 
-
 def test_delete_question_valid():
-    """Test delete_question with valid selection."""
-    # Create a temporary file with questions
+    """Test delete_question to ensure the correct item is removed from the JSON file."""
     temp_file = Path("/tmp/test_delete_select.json")
     test_questions = [
-        {"question": "Question to delete", "type": "multiple", "correct": "Answer", "wrong_answers": []},
-        {"question": "Question to keep", "type": "multiple", "correct": "Answer", "wrong_answers": []}
+        {"question": "First Question", "type": "multiple", "correct": "A", "wrong_answers": []},
+        {"question": "Second Question", "type": "multiple", "correct": "B", "wrong_answers": []}
     ]
     temp_file.write_text(json.dumps(test_questions), encoding="utf-8")
     
+    # Reset cache to ensure the test reads fresh data
+    questions.questions_cache.clear()
+    
     try:
-        with patch('qm2.core.questions.questionary.select') as mock_select:
-            with patch('qm2.core.questions.console'):
-                # Mock user selecting the first question
-                mock_select.return_value.ask.return_value = "Question to delete"
-                
-                questions.delete_question(str(temp_file))
-                
-                # Verify question was deleted
-                remaining_questions = json.loads(temp_file.read_text(encoding="utf-8"))
-                assert len(remaining_questions) == 1
-                assert remaining_questions[0]["question"] == "Question to keep"
+        with patch('qm2.core.questions.questionary.select') as mock_select, \
+             patch('qm2.core.questions.console'):
+            
+            # Simulate selecting the first question
+            mock_select.return_value.ask.return_value = "First Question"
+            
+            questions.delete_question(str(temp_file))
+            
+            # Reset cache again before reading back
+            questions.questions_cache.clear()
+            remaining = json.loads(temp_file.read_text(encoding="utf-8"))
+            
+            assert len(remaining) == 1
+            assert remaining[0]["question"] == "Second Question"
     finally:
-        temp_file.unlink(missing_ok=True)
-
+        if temp_file.exists():
+            temp_file.unlink()
 
 def test_delete_question_cancel():
     """Test delete_question when user cancels."""

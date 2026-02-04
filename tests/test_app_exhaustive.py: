@@ -1,0 +1,46 @@
+import pytest
+from unittest.mock import patch, MagicMock
+import qm2.app as app
+
+def test_questions_submenu_logic_branches():
+    """Targets app.py lines 163-184: Navigation through all sub-options."""
+    questions = [{"question": "Q1", "options": ["A"], "answer": "A"}]
+    
+    with patch('questionary.select') as mock_select, \
+         patch('qm2.app.show_questions_paginated'), \
+         patch('qm2.app.edit_question_by_index'), \
+         patch('qm2.app.delete_question_by_index'), \
+         patch('qm2.app.get_questions', return_value=questions), \
+         patch('qm2.app.save_json'), \
+         patch('rich.prompt.Prompt.ask', return_value="1"), \
+         patch('rich.console.Console.print'):
+        
+        # We simulate a user clicking through every single option in one session
+        mock_select.return_value.ask.side_effect = [
+            "📚 Show all questions",
+            "🔢 Edit by number",
+            "🔢 Delete by number",
+            "➕ Add question",
+            "💾 Save questions",
+            "↩ Back" # Essential to break the while True loop
+        ]
+        
+        app._handle_questions_submenu("dummy.json", questions)
+        assert mock_select.call_count == 6
+
+def test_csv_to_json_conversion_flow():
+    """Targets app.py lines 336-364: The CSV conversion tool logic."""
+    with patch('os.listdir', return_value=["test.csv"]), \
+         patch('questionary.select') as mock_select, \
+         patch('rich.prompt.Prompt.ask', return_value="history"), \
+         patch('qm2.app.is_file_valid', return_value=True), \
+         patch('qm2.app.core_csv_to_json'), \
+         patch('qm2.app.categories_add'), \
+         patch('qm2.app.refresh_categories_cache'), \
+         patch('rich.console.Console.print'):
+        
+        # Select file, then loop finishes
+        mock_select.return_value.ask.side_effect = ["test.csv"]
+        
+        app._handle_csv_to_json()
+        assert mock_select.called
