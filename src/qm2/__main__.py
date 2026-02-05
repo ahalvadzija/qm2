@@ -1,5 +1,4 @@
 import argparse
-import sys
 from .app import main as run_app
 from qm2.paths import ensure_dirs, migrate_legacy_paths
 
@@ -26,7 +25,7 @@ def main():
     )
 
     # Parse arguments
-    args = parser.parse_args()
+    parser.parse_args()
 
     # 🔹 1. Prepare application storage
     # If you later want to support custom data-dir, 

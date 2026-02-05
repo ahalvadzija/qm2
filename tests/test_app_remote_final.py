@@ -1,5 +1,4 @@
 # tests/test_app_remote_final.py
-import pytest
 from unittest.mock import patch
 from qm2.app import import_remote_file
 

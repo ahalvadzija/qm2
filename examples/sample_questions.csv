@@ -1,0 +1,5 @@
+type,question,correct,wrong_answers,left,right,answers
+multiple,What is the capital of France?,Paris,"Rome,Berlin,Madrid",,,
+truefalse,The Sun is a star.,True,False,,,
+fillin,The capital of Japan is ______.,Tokyo,,,,
+match,Match technologies,,,Python|HTML,Programming language|Markup language,"a:1,b:2"

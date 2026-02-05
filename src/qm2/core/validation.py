@@ -5,7 +5,7 @@ Validation utilities for CSV and JSON quiz files.
 import json
 import csv
 from pathlib import Path
-from typing import List, Dict, Any, Tuple, Optional
+from typing import List, Dict, Any, Tuple
 from rich.console import Console
 
 console = Console()

@@ -1,8 +1,5 @@
-import pytest
-import json
-import os
 from unittest.mock import patch, mock_open
-from qm2.utils.files import save_json, load_json, load_json_result
+from qm2.utils.files import save_json, load_json_result
 
 def test_load_json_result_not_found():
     """Covers lines where file does not exist."""

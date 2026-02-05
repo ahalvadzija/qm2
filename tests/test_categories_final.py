@@ -1,4 +1,4 @@
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 from qm2.core.categories import (
     delete_json_quiz_file, 
     categories_add, 

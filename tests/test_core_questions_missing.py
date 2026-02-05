@@ -1,6 +1,5 @@
-import pytest
 import json
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 from qm2.core.questions import delete_question_by_index, edit_question_by_index
 
 def test_delete_by_index_logic(tmp_path):

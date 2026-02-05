@@ -3,11 +3,8 @@ Additional tests for engine.py to improve coverage to 85%+.
 Focus on timeout scenarios, empty categories, shuffle verification, and match questions.
 """
 
-import pytest
 from unittest.mock import patch, MagicMock, Mock
-import time
 import random
-from pathlib import Path
 
 from qm2.core.engine import (
     quiz_session, flashcards_mode, _handle_choice_question, 
@@ -38,7 +35,7 @@ class TestEngineCoverage:
         """Test input_with_timeout returns None on timeout (Unix path)."""
         with patch('qm2.core.engine.platform.system', return_value='Linux'):
             with patch('qm2.core.engine.select.select') as mock_select:
-                with patch('qm2.core.engine.sys.stdin.readline') as mock_readline:
+                with patch('qm2.core.engine.sys.stdin.readline'):
                     # Simulate timeout (no ready input)
                     mock_select.return_value = ([], [], [])
                     
@@ -166,7 +163,7 @@ class TestEngineCoverage:
         }
         
         with patch('qm2.core.engine.input_with_timeout') as mock_input:
-            with patch('qm2.core.engine.console.print') as mock_print:
+            with patch('qm2.core.engine.console.print'):
                 # Mock correct inputs: a-1, b-2
                 mock_input.side_effect = ["1", "2"]
                 
@@ -187,7 +184,7 @@ class TestEngineCoverage:
         }
         
         with patch('qm2.core.engine.input_with_timeout') as mock_input:
-            with patch('qm2.core.engine.console.print') as mock_print:
+            with patch('qm2.core.engine.console.print'):
                 # Mock incorrect inputs: a-2, b-1
                 mock_input.side_effect = ["2", "1"]
                 
@@ -240,7 +237,7 @@ class TestEngineCoverage:
         
         # Mock all user inputs to be correct
         with patch('qm2.core.engine.random.shuffle') as mock_shuffle:
-            with patch('qm2.core.engine.input_with_timeout') as mock_input:
+            with patch('qm2.core.engine.input_with_timeout'):
                 with patch('qm2.core.engine._show_quiz_statistics') as mock_stats:
                     with patch('qm2.core.engine._save_quiz_result') as mock_save:
                         # Don't shuffle questions to maintain predictable order

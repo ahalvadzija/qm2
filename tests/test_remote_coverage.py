@@ -1,4 +1,3 @@
-import pytest
 from unittest.mock import patch, MagicMock
 from pathlib import Path
 import qm2.app as app

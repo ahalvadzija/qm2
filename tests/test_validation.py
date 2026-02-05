@@ -2,7 +2,6 @@
 Tests for validation module to improve coverage.
 """
 
-import pytest
 import tempfile
 import json
 import csv

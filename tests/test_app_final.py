@@ -1,6 +1,5 @@
 # tests/test_app_loops_final.py
-import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 from qm2.app import _handle_questions_submenu
 
 def test_handle_questions_submenu_full_coverage():

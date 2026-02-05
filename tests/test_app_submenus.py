@@ -4,7 +4,7 @@ Unit tests for app.py submenu functions to improve coverage for lines 189-244 an
 
 import pytest
 import tempfile
-from unittest.mock import patch, MagicMock, mock_open
+from unittest.mock import patch
 from pathlib import Path
 
 from qm2.app import _handle_questions_submenu, _handle_questions_menu, _handle_tools_menu, _handle_csv_to_json
@@ -267,7 +267,7 @@ class TestAppSubmenus:
         
         with patch('qm2.app.create_csv_template') as mock_template:
             with patch('qm2.app.refresh_csv_cache') as mock_refresh:
-                with patch('qm2.app.console.print') as mock_print:
+                with patch('qm2.app.console.print'):
                     _handle_tools_menu()
                     
                     # Verify template function was called
@@ -282,7 +282,7 @@ class TestAppSubmenus:
         
         with patch('qm2.app.create_json_template') as mock_template:
             with patch('qm2.app.refresh_categories_cache') as mock_refresh:
-                with patch('qm2.app.console.print') as mock_print:
+                with patch('qm2.app.console.print'):
                     _handle_tools_menu()
                     
                     # Verify template function was called
@@ -315,7 +315,7 @@ class TestAppSubmenus:
         """Test successful CSV to JSON conversion."""
         # Mock all OS operations
         with patch('qm2.app.os.listdir') as mock_listdir:
-            with patch('qm2.app.os.makedirs') as mock_makedirs:
+            with patch('qm2.app.os.makedirs'):
                 with patch('qm2.app.questionary.select') as mock_select:
                     with patch('qm2.app.Prompt.ask') as mock_prompt:
                         with patch('qm2.app.is_file_valid') as mock_valid:
@@ -323,7 +323,7 @@ class TestAppSubmenus:
                                 with patch('qm2.app.categories_add') as mock_add:
                                     with patch('qm2.app.refresh_categories_cache') as mock_refresh:
                                         with patch('qm2.app.categories_root_dir') as mock_root:
-                                            with patch('qm2.app.console.print') as mock_print:
+                                            with patch('qm2.app.console.print'):
                                                 with patch('qm2.app.paths') as mock_paths:
                                                     # Mock CSV files
                                                     mock_listdir.return_value = ["test.csv"]
@@ -352,7 +352,7 @@ class TestAppSubmenus:
         """Test CSV to JSON when no CSV files exist."""
         # Mock all OS operations
         with patch('qm2.app.os.listdir') as mock_listdir:
-            with patch('qm2.app.questionary.select') as mock_select:
+            with patch('qm2.app.questionary.select'):
                 with patch('qm2.app.console.print') as mock_print:
                     with patch('qm2.app.paths') as mock_paths:
                         # Mock no CSV files
@@ -371,7 +371,7 @@ class TestAppSubmenus:
         # Mock all OS operations
         with patch('qm2.app.os.listdir') as mock_listdir:
             with patch('qm2.app.questionary.select') as mock_select:
-                with patch('qm2.app.console.print') as mock_print:
+                with patch('qm2.app.console.print'):
                     with patch('qm2.app.paths') as mock_paths:
                         # Mock CSV files
                         mock_listdir.return_value = ["test.csv"]
@@ -390,7 +390,7 @@ class TestAppSubmenus:
         """Test CSV to JSON when validation fails."""
         # Mock all OS operations
         with patch('qm2.app.os.listdir') as mock_listdir:
-            with patch('qm2.app.os.makedirs') as mock_makedirs:
+            with patch('qm2.app.os.makedirs'):
                 with patch('qm2.app.questionary.select') as mock_select:
                     with patch('qm2.app.Prompt.ask') as mock_prompt:
                         with patch('qm2.app.is_file_valid') as mock_valid:
