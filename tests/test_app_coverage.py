@@ -3,9 +3,7 @@ Final coverage tests for app.py to push project to 85%+ total coverage.
 Tests main menu navigation, help, exit, and diagnose functionality.
 """
 
-import pytest
-from unittest.mock import patch, MagicMock
-from pathlib import Path
+from unittest.mock import patch
 
 from qm2.app import main
 from qm2.diagnose import main as diagnose_main
@@ -18,8 +16,8 @@ class TestAppCoverage:
         """Test main menu help option navigation."""
         with patch('qm2.app.questionary.select') as mock_select:
             with patch('qm2.app.show_help') as mock_help:
-                with patch('qm2.app.show_logo') as mock_logo:
-                    with patch('qm2.app.console.clear') as mock_clear:
+                with patch('qm2.app.show_logo'):
+                    with patch('qm2.app.console.clear'):
                         # Select help option, then exit
                         mock_select.return_value.ask.side_effect = ["6.) 💞 Help", "7.) ⏻  Exit"]
                         
@@ -40,8 +38,8 @@ class TestAppCoverage:
     def test_main_menu_exit_no_confirmation(self):
         """Test main menu exit without confirmation."""
         with patch('qm2.app.questionary.select') as mock_select:
-            with patch('qm2.app.show_logo') as mock_logo:
-                with patch('qm2.app.console.clear') as mock_clear:
+            with patch('qm2.app.show_logo'):
+                with patch('qm2.app.console.clear'):
                     # Select exit option twice: first no, then yes
                     mock_select.return_value.ask.side_effect = ["7.) ⏻  Exit", "7.) ⏻  Exit"]
                     
@@ -61,8 +59,8 @@ class TestAppCoverage:
     def test_main_menu_exit_with_confirmation(self):
         """Test main menu exit with confirmation."""
         with patch('qm2.app.questionary.select') as mock_select:
-            with patch('qm2.app.show_logo') as mock_logo:
-                with patch('qm2.app.console.clear') as mock_clear:
+            with patch('qm2.app.show_logo'):
+                with patch('qm2.app.console.clear'):
                     with patch('qm2.app.console.print') as mock_print:
                         # Select exit option and confirm
                         mock_select.return_value.ask.side_effect = ["7.) ⏻  Exit"]
@@ -82,8 +80,8 @@ class TestAppCoverage:
     def test_main_menu_start_quiz_flow(self):
         """Test main menu start quiz flow."""
         with patch('qm2.app.questionary.select') as mock_select:
-            with patch('qm2.app.show_logo') as mock_logo:
-                with patch('qm2.app.console.clear') as mock_clear:
+            with patch('qm2.app.show_logo'):
+                with patch('qm2.app.console.clear'):
                     # Select quiz option, then exit
                     mock_select.return_value.ask.side_effect = ["1.) 🚀 Start Quiz", "7.) ⏻  Exit"]
                     
@@ -103,8 +101,8 @@ class TestAppCoverage:
     def test_main_menu_flashcards_flow(self):
         """Test main menu flashcards flow."""
         with patch('qm2.app.questionary.select') as mock_select:
-            with patch('qm2.app.show_logo') as mock_logo:
-                with patch('qm2.app.console.clear') as mock_clear:
+            with patch('qm2.app.show_logo'):
+                with patch('qm2.app.console.clear'):
                     # Select flashcards option, then exit
                     mock_select.return_value.ask.side_effect = ["2.) 👾 Flashcards Learning", "7.) ⏻  Exit"]
                     
@@ -124,8 +122,8 @@ class TestAppCoverage:
     def test_main_menu_questions_flow(self):
         """Test main menu questions flow."""
         with patch('qm2.app.questionary.select') as mock_select:
-            with patch('qm2.app.show_logo') as mock_logo:
-                with patch('qm2.app.console.clear') as mock_clear:
+            with patch('qm2.app.show_logo'):
+                with patch('qm2.app.console.clear'):
                     # Select questions option, then exit
                     mock_select.return_value.ask.side_effect = ["3.) 🗂️ Questions", "7.) ⏻  Exit"]
                     
@@ -145,8 +143,8 @@ class TestAppCoverage:
     def test_main_menu_statistics_flow(self):
         """Test main menu statistics flow."""
         with patch('qm2.app.questionary.select') as mock_select:
-            with patch('qm2.app.show_logo') as mock_logo:
-                with patch('qm2.app.console.clear') as mock_clear:
+            with patch('qm2.app.show_logo'):
+                with patch('qm2.app.console.clear'):
                     # Select statistics option, then exit
                     mock_select.return_value.ask.side_effect = ["4.) 📈 Statistics", "7.) ⏻  Exit"]
                     
@@ -166,8 +164,8 @@ class TestAppCoverage:
     def test_main_menu_tools_flow(self):
         """Test main menu tools flow."""
         with patch('qm2.app.questionary.select') as mock_select:
-            with patch('qm2.app.show_logo') as mock_logo:
-                with patch('qm2.app.console.clear') as mock_clear:
+            with patch('qm2.app.show_logo'):
+                with patch('qm2.app.console.clear'):
                     # Select tools option, then exit
                     mock_select.return_value.ask.side_effect = ["5.) 🧰 Tools", "7.) ⏻  Exit"]
                     

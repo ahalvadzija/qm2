@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 from pathlib import Path
 from qm2.app import import_remote_file
 from qm2.core.questions import delete_question_by_index, edit_question_by_index

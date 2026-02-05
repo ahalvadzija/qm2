@@ -3,13 +3,10 @@ Final coverage tests to push project from 82% to 85%+.
 Tests __main__.py and edge cases in categories.py.
 """
 
-import pytest
-from unittest.mock import patch, MagicMock
-import os
+from unittest.mock import patch
 import json
 import sys
 import subprocess
-from pathlib import Path
 
 from qm2.core.categories import (
     create_new_category, delete_category, rename_category,
@@ -24,7 +21,7 @@ class TestFinalCoverage:
         """Test __main__.py entry point."""
         # Run the module as a subprocess to test __main__.py properly
         try:
-            result = subprocess.run(
+            subprocess.run(
                 [sys.executable, "-m", "qm2"], 
                 capture_output=True, 
                 timeout=5,
@@ -103,7 +100,7 @@ class TestFinalCoverage:
         with patch('qm2.core.categories.categories_root_dir', return_value=str(test_dir)):
             # Mock os.makedirs to raise PermissionError (that's what the code uses)
             with patch('qm2.core.categories.os.makedirs') as mock_makedirs:
-                with patch('qm2.core.categories.save_json') as mock_save:
+                with patch('qm2.core.categories.save_json'):
                     mock_makedirs.side_effect = PermissionError("Permission denied")
                     
                     # Mock Rich Prompt.ask to avoid stdin issues

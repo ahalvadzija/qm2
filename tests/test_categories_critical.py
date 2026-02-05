@@ -2,11 +2,7 @@
 Tests for critical categories.py functions to improve coverage.
 """
 
-import pytest
-import tempfile
-import os
-from pathlib import Path
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 from qm2.core.categories import (
     create_new_category, delete_json_quiz_file

@@ -1,5 +1,5 @@
 from qm2.utils.files import save_json
-from unittest.mock import patch, mock_open
+from unittest.mock import patch
 
 def test_save_json_exception_path():
     """Covers lines 52-55 in utils/files.py."""

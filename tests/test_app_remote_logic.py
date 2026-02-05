@@ -1,5 +1,4 @@
-import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 from qm2.app import import_remote_file
 import requests
 
@@ -11,7 +10,7 @@ def test_import_remote_file_unsupported_type():
     with patch('rich.prompt.Prompt.ask', side_effect=["http://non-existent-site.com/file", "my_file"]), \
          patch('questionary.select') as mock_select, \
          patch('requests.head') as mock_head, \
-         patch('rich.console.Console.print') as mock_print:
+         patch('rich.console.Console.print'):
         
         # Simulate a network failure (DNS or Timeout) for requests.head
         mock_head.side_effect = requests.exceptions.ConnectionError()

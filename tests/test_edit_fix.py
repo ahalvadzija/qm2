@@ -1,5 +1,4 @@
-import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 from qm2.core.questions import edit_question
 
 def test_edit_question_all_types_coverage():

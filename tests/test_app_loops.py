@@ -1,6 +1,4 @@
-import pytest
-import os
-from unittest.mock import patch, MagicMock 
+from unittest.mock import patch 
 from qm2.app import _handle_questions_submenu, _handle_csv_to_json
 
 def test_handle_questions_submenu_full_loop():

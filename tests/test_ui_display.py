@@ -2,11 +2,8 @@
 Simple tests for ui/display.py to improve coverage.
 """
 
-import pytest
 import json
-import tempfile
-from pathlib import Path
-from unittest.mock import patch, MagicMock, mock_open
+from unittest.mock import patch, mock_open
 
 from qm2.ui.display import show_logo, show_help
 

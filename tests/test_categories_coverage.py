@@ -1,7 +1,5 @@
-import pytest
 import os
-from pathlib import Path
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 import qm2.core.categories as categories
 
 

@@ -15,7 +15,7 @@ from qm2.core.categories import create_new_category, delete_category, categories
 from qm2.core.import_export import csv_to_json as core_csv_to_json, json_to_csv as core_json_to_csv, download_remote as core_download_remote
 from qm2.core.templates import create_csv_template, create_json_template
 from qm2.core.engine import quiz_session, flashcards_mode
-from qm2.core.validation import is_file_valid, show_validation_errors
+from qm2.core.validation import is_file_valid
 
 from qm2.core.categories import (
     get_categories,

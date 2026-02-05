@@ -1,6 +1,4 @@
-import pytest
-from unittest.mock import patch, MagicMock
-from pathlib import Path
+from unittest.mock import patch
 import qm2.app as app
 
 
@@ -49,9 +47,9 @@ def test_full_tools_and_stats_flow():
     """Udaramo direktno na Tools i Stats menije u app.py."""
     with patch('qm2.app.questionary.select') as mock_select, \
          patch('qm2.app.view_scores') as mock_view, \
-         patch('qm2.app.reset_scores') as mock_reset, \
+         patch('qm2.app.reset_scores'), \
          patch('qm2.app._handle_csv_to_json') as mock_csv_conv, \
-         patch('qm2.app._handle_json_to_csv') as mock_json_conv:
+         patch('qm2.app._handle_json_to_csv'):
         
         mock_select.return_value.ask.side_effect = [
             "📈 View results", "♻️ Reset results", "↩ Back"

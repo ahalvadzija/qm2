@@ -1,7 +1,6 @@
 import json
 from pathlib import Path
 import qm2.paths as paths
-import os
 import importlib
 from unittest.mock import patch
 import qm2.paths

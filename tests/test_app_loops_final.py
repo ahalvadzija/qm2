@@ -1,5 +1,4 @@
-import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 import qm2.app as app
 
 def test_questions_submenu_full_path():
