@@ -285,10 +285,10 @@ export NO_COLOR=1
 
 ```csv
 type,question,correct,wrong_answers,left,right,answers
-multiple,"What is 2+2?",4,"3,5,6","","",""
-truefalse,"Earth is flat",False,True,"","",""
-fillin,"Capital of Italy is ______",Rome,"","","",""
-match,"Match items","","","A|B","1|2","a:1,b:2"
+multiple,What is the capital of France?,Paris,"Rome,Berlin,Madrid",,,
+truefalse,The Sun is a star.,True,False,,,
+fillin,The capital of Japan is ______.,Tokyo,,,,
+match,Match technologies,,,Python|HTML,Programming language|Markup language,"a:1,b:2"
 ```
 
 ## Contributing
