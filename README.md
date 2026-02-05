@@ -162,7 +162,7 @@ qm2/
 │   ├── ui/                 # Rich terminal user interface
 │   ├── utils/              # File I/O and helper utilities
 │   └── __main__.py         # CLI entry point
-├── tests/                  # Extensive test suite (325+ tests)
+├── tests/                  # Extensive test suite (tests)
 │   ├── test_engine.py      # Core logic benchmarks
 │   ├── test_performance.py # Speed & stress tests
 │   └── ...                 # App, UI, and integration tests
@@ -181,7 +181,7 @@ qm2/
 
 ### Quality Assurance & Performance
 
-Reliability is at the heart of QM2. The project maintains an 86% coverage rate backed by a massive suite of 325 individual tests. CI/CD pipeline ensures that every release is battle-tested.
+Reliability is at the heart of QM2. The project maintains an 86% coverage rate backed by a massive suite of individual tests. CI/CD pipeline ensures that every release is battle-tested.
 
 #### Test Coverage Breakdown
 
