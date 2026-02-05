@@ -95,7 +95,3 @@ black src/ tests/
 isort src/ tests/
 flake8 src/ tests/
 ```
-
-## Contributing
-
-We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.

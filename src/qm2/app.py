@@ -126,7 +126,7 @@ def import_remote_file() -> None:
         # Remove invalid file
         try:
             saved.unlink()
-        except:
+        except Exception:
             pass
         return
 
