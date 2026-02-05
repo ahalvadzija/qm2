@@ -5,51 +5,51 @@ repo_url: https://github.com/ahalvadzija/qm2
 site_url: https://ahalvadzija.github.io/qm2/
 
 theme:
-  name: material
-  language: en
-  palette:
-    # Dark theme
-    - scheme: slate
-      primary: blue grey
-      accent: indigo    
-      toggle:
-        icon: material/brightness-4
-        name: Switch to light mode
-    
-    # Light theme
-    - scheme: default
-      primary: blue grey
-      accent: indigo
-      toggle:
-        icon: material/brightness-7
-        name: Switch to dark mode
+    name: material
+    language: en
+    palette:
+        # Dark theme
+        - scheme: slate
+          primary: blue grey
+          accent: indigo
+          toggle:
+              icon: material/brightness-4
+              name: Switch to light mode
 
-  features:
-    - navigation.tabs
-    - navigation.sections
-    - navigation.expand
-    - content.code.copy
-    - search.suggest
-    - search.highlight
-    - navigation.top     
-    - header.autohide     
+        # Light theme
+        - scheme: default
+          primary: blue grey
+          accent: indigo
+          toggle:
+              icon: material/brightness-7
+              name: Switch to dark mode
 
-  font:
-    text: Roboto
-    code: Roboto Mono   
+    features:
+        - navigation.tabs
+        - navigation.sections
+        - navigation.expand
+        - content.code.copy
+        - search.suggest
+        - search.highlight
+        - navigation.top
+        - header.autohide
+
+    font:
+        text: Roboto
+        code: Roboto Mono
 
 extra_css:
-  - stylesheets/extra.css
+    - stylesheets/extra.css
 
 plugins:
-  - search
-  - mkdocstrings:
-      handlers:
-        python:
-          paths: [src]
+    - search
+    - mkdocstrings:
+          handlers:
+              python:
+                  paths: [src]
 
 nav:
-  - Home: index.md
-  - User Guide: guide.md
-  - Development & Testing: dev.md
-  - API Reference: reference.md
+    - Home: index.md
+    - User Guide: guide.md
+    - Development & Testing: dev.md
+    - API Reference: reference.md
