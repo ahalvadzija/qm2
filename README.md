@@ -7,7 +7,7 @@
 
 [![CI/CD Pipeline](https://github.com/ahalvadzija/qm2/actions/workflows/pipeline.yml/badge.svg)](https://github.com/ahalvadzija/qm2/actions/workflows/pipeline.yml)
 
-![Main Menu](images/main-qm2.png)
+![Main Menu](docs/images/main-qm2.png)
 
 ## Overview
 
@@ -48,11 +48,11 @@ pip install -e .
 
 ### Quiz Features
 
-![Gameplay](images/gameplay-qm2.png) ![Flashcards](images/flashcards-qm2.png)
+![Gameplay](docs/images/gameplay-qm2.png) ![Flashcards](docs/images/flashcards-qm2.png)
 
 ### Tools & Help
 
-![Tools](images/tools-qm2.png) ![Help](images/help-qm2.png)
+![Tools](docs/images/tools-qm2.png) ![Help](docs/images/help-qm2.png)
 
 ## Installation
 
