@@ -108,7 +108,7 @@ class TestImportExportProcessing:
         csv_to_json(csv_file, json_file)
         data = json.loads(json_file.read_text(encoding="utf-8"))
         assert data[0]["wrong_answers"] == ["3", "5"]
-        assert data[0]["pairs"] == {}
+        assert "pairs" not in data[0]
 
     def test_csv_to_json_normal_wrong_answers_fallback_strips_quotes(self, tmp_path: Path) -> None:
         csv_file = tmp_path / "fallback.csv"
@@ -155,7 +155,7 @@ class TestImportExportProcessing:
         csv_to_json(csv_file, json_file)
         data = json.loads(json_file.read_text(encoding="utf-8"))
         row = data[0]
-        assert row["pairs"] == {}
+        assert "pairs" not in row
         assert "left" not in row
         assert "right" not in row
         assert "answers" not in row

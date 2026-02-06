@@ -8,7 +8,7 @@ import json
 from qm2.paths import CATEGORIES_DIR, CSV_DIR
 
 
-def create_csv_template(filename: str = "template.csv") -> Path:
+def create_csv_template(filename: str = "example-template.csv") -> Path:
     """
     Create CSV template in the application CSV directory.
     Returns full path to the created file.

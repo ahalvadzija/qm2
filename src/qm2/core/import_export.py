@@ -6,129 +6,128 @@ from rich.prompt import Prompt
 
 def csv_to_json(csv_file: Path, json_file: Path) -> None:
     """
-    Convert CSV file to JSON format with support for standard and flattened formats.
+    Directly handles the specific way DictReader parses escaped commas.
     """
     import csv
     import json
     import ast
-    
+
     with open(csv_file, newline="", encoding="utf-8") as f:
+        # DictReader automatically handles ""x, y"" by removing outer quotes
+        # and keeping the comma as part of the value.
         reader = csv.DictReader(f)
         rows = list(reader)
 
-    # Detect if CSV uses flattened headers (e.g., pairs/left/0)
     fieldnames = reader.fieldnames or []
     is_flattened = any('/' in field for field in fieldnames)
 
     processed_rows = []
     for row in rows:
-        processed_row = {}
-        
+        res = {
+            'type': str(row.get('type', '')).strip(),
+            'question': str(row.get('question', '')).strip(),
+            'correct': str(row.get('correct', '')).strip(),
+            'wrong_answers': [],
+        }
+
         if is_flattened:
-            # --- HANDLE FLATTENED CSV FORMAT ---
-            wrong_answers = []
-            for key in row:
-                if key.startswith('wrong_answers/'):
-                    value = row[key]
-                    if value and str(value).strip():
-                        wrong_answers.append(str(value).strip())
-            processed_row['wrong_answers'] = wrong_answers
-            
-            # Reconstruct matching components from flattened columns
-            left_items, right_items, answers = [], [], {}
-            for key in sorted(row.keys()):
-                val = row[key]
-                if not val or not str(val).strip(): 
-                    continue
-                if key.startswith('pairs/left/'): 
-                    left_items.append(str(val).strip())
-                elif key.startswith('pairs/right/'): 
-                    right_items.append(str(val).strip())
-                elif key.startswith('pairs/answers/'):
-                    answers[key.split('/')[-1]] = str(val).strip()
-            
-            if left_items or right_items or answers:
-                processed_row['pairs'] = {
-                    'left': left_items, 
-                    'right': right_items, 
-                    'answers': answers
-                }
-            
-            # Map basic fields
-            for key in ['type', 'question', 'correct']:
-                processed_row[key] = str(row.get(key, "")).strip()
-        
-        else:
-            # --- HANDLE NORMAL CSV FORMAT ---
-            for key, value in row.items():
-                if key is None or value is None: 
-                    continue
-                val_str = str(value).strip()
+            # --- FLATTENED ---
+            wa = []
+            for k, v in row.items():
+                if k and k.startswith('wrong_answers/') and v:
+                    wa.append(str(v).strip())
+            res['wrong_answers'] = wa
 
-                if key == "wrong_answers":
-                    if val_str:
-                        # Prevent ast.literal_eval from converting "False" to boolean False
-                        if val_str.startswith('[') and val_str.endswith(']'):
-                            try:
-                                # Safe parsing for string-represented lists
-                                items = ast.literal_eval(val_str)
-                                processed_row[key] = [str(i) for i in items]
-                            except:
-                                # Fallback if literal_eval fails
-                                processed_row[key] = [i.strip() for i in val_str.strip('[]').split(',') if i.strip()]
-                        else:
-                            # Standard comma-separated values
-                            processed_row[key] = [i.strip() for i in val_str.split(',') if i.strip()]
-                    else:
-                        processed_row[key] = []
-                
-                elif key in ["left", "right"]:
-                    # Split pipe-separated values for match questions
-                    processed_row[key] = [i.strip() for i in val_str.split('|') if i.strip()] if val_str else []
-                
-                elif key == "answers":
-                    # Parse "a:1, b:2" mapping
-                    d = {}
-                    if val_str:
-                        for pair in val_str.split(','):
-                            if ':' in pair:
-                                k, v = pair.split(':', 1)
-                                d[k.strip()] = v.strip()
-                    processed_row[key] = d
+            l_items, r_items, ans_dict = [], [], {}
+            for k in sorted(row.keys()):
+                v = row[k]
+                if not v:
+                    continue
+                if k.startswith('pairs/left/'):
+                    l_items.append(str(v).strip())
+                elif k.startswith('pairs/right/'):
+                    r_items.append(str(v).strip())
+                elif k.startswith('pairs/answers/'):
+                    ans_dict[k.split('/')[-1]] = str(v).strip()
+            
+            if l_items or r_items or ans_dict:
+                res['pairs'] = {'left': l_items, 'right': r_items, 'answers': ans_dict}
+        else:
+            # --- NORMAL ---
+            wa_raw = str(row.get('wrong_answers', '')).strip()
+            if wa_raw:
+                if wa_raw.startswith('[') and wa_raw.endswith(']'):
+                    try:
+                        res['wrong_answers'] = [str(i) for i in ast.literal_eval(wa_raw)]
+                    except (ValueError, SyntaxError):
+                        # Clean and split
+                        c = wa_raw.strip('[]').replace('"', '').replace("'", "")
+                        res['wrong_answers'] = [i.strip() for i in c.split(',') if i.strip()]
                 else:
-                    processed_row[key] = val_str
+                    # Specific fix: if DictReader gave us "x, y" as one string, 
+                    # we MUST split it even if it was quoted in CSV.
+                    # Handle CSV escaped quotes: ""x, y"" becomes "x, y" in DictReader
+                    
+                    # Check if there are additional None keys from CSV parsing
+                    additional_values = []
+                    for key in row.keys():
+                        if key is None and row[key]:
+                            additional_values.extend(row[key])
+                    
+                    if wa_raw.startswith('"') and wa_raw.endswith('"'):
+                        # Remove outer quotes from CSV escaped quotes
+                        cleaned = wa_raw[1:-1]
+                    else:
+                        cleaned = wa_raw.replace('"', '').replace("'", "")
+                    
+                    # Add additional values if they exist
+                    if additional_values:
+                        # Clean additional values and join
+                        cleaned_additional = ",".join([v.replace('"', '').replace("'", "").strip() for v in additional_values])
+                        cleaned += "," + cleaned_additional
+                    
+                    # Split by comma and filter empty strings
+                    res['wrong_answers'] = [i.strip() for i in cleaned.split(',') if i.strip()]
 
-        # --- FINAL CLEANUP AND STRUCTURING ---
-        question_type = processed_row.get('type', '')
+            if res['type'] == 'match':
+                l_raw = str(row.get('left', '')).strip()
+                r_raw = str(row.get('right', '')).strip()
+                a_raw = str(row.get('answers', '')).strip()
 
-        if question_type == 'match':
-            # Ensure 'pairs' object is structured correctly for matching questions
-            if 'left' in processed_row or 'right' in processed_row:
-                processed_row['pairs'] = {
-                    'left': processed_row.pop('left', []),
-                    'right': processed_row.pop('right', []),
-                    'answers': processed_row.pop('answers', {})
+                res['pairs'] = {
+                    'left': [i.strip() for i in l_raw.split('|') if l_raw and i.strip()],
+                    'right': [i.strip() for i in r_raw.split('|') if r_raw and i.strip()],
+                    'answers': {}
                 }
-            # Remove redundant fields for match type
-            processed_row.pop('correct', None)
-            processed_row.pop('wrong_answers', None)
-        else:
-            # Remove matching fields for non-match question types
-            processed_row.pop('pairs', None)
-            processed_row.pop('left', None)
-            processed_row.pop('right', None)
-            processed_row.pop('answers', None)
-            
-            # Ensure wrong_answers key exists for consistency
-            if 'wrong_answers' not in processed_row:
-                processed_row['wrong_answers'] = []
+                
+                if a_raw:
+                    # Split answers like "a:1, b:0"
+                    
+                    # Check if there are additional None keys from CSV parsing for answers
+                    additional_values = []
+                    for key in row.keys():
+                        if key is None and row[key]:
+                            additional_values.extend(row[key])
+                    
+                    cleaned_a = a_raw.replace('"', '').replace("'", "")
+                    
+                    # Add additional values if they exist
+                    if additional_values:
+                        # Clean additional values and join
+                        cleaned_additional = ",".join([v.replace('"', '').replace("'", "").strip() for v in additional_values])
+                        cleaned_a += "," + cleaned_additional
+                    
+                    for pair in cleaned_a.split(','):
+                        pair = pair.strip()
+                        if ':' in pair:
+                            k, v = pair.split(':', 1)
+                            res['pairs']['answers'][k.strip()] = v.strip()
 
-        processed_rows.append(processed_row)
+        processed_rows.append(res)
 
-    # Save to JSON with indentation and UTF-8 support
     with open(json_file, "w", encoding="utf-8") as f:
         json.dump(processed_rows, f, ensure_ascii=False, indent=2)
-        
+
 def json_to_csv(json_file: Path, csv_file: Path) -> None:
     """
     Convert JSON file back to CSV format.
@@ -143,7 +142,7 @@ def json_to_csv(json_file: Path, csv_file: Path) -> None:
         raise ValueError("JSON is empty")
 
     # Definiramo fixni redoslijed kolona prema README specifikaciji
-    fieldnames = ['type', 'question', 'correct', 'wrong_answers', 'left', 'right', 'answers']
+    fieldnames = ['type', 'question', 'correct', 'wrong_answers', 'left', 'right', 'answers', 'pairs']
     
     processed_rows = []
     for row in rows:
@@ -175,6 +174,12 @@ def json_to_csv(json_file: Path, csv_file: Path) -> None:
             if 'answers' in pairs:
                 ans_dict = pairs['answers']
                 processed_row['answers'] = ",".join([f"{k}:{v}" for k, v in ans_dict.items()])
+        
+        # Always include pairs as JSON string for compatibility
+        if isinstance(row.get('pairs'), dict):
+            processed_row['pairs'] = json.dumps(row['pairs'], ensure_ascii=False)
+        else:
+            processed_row['pairs'] = ""
 
         processed_rows.append(processed_row)
 
@@ -203,7 +208,6 @@ def download_remote(url: str, dest_path: Path, overwrite: bool = False) -> Path:
     resp.raise_for_status()
     dest_path.write_bytes(resp.content)
     return dest_path
-
 
 def download_remote_file(url: str, dest_dir: Path) -> Path | None:
     """
