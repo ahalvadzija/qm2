@@ -1,7 +1,3 @@
-"""
-Integration tests for app.py using builtins.input mock to simulate full user sessions.
-"""
-
 import pytest
 from unittest.mock import patch, MagicMock
 
@@ -34,24 +30,22 @@ class TestAppIntegration:
     @patch('qm2.app.show_logo')
     def test_help_menu_flow(self, mock_logo, mock_select):
         """Test help menu flow."""
-        # Mock main menu selection: Help, then Exit (multiple exits to prevent StopIteration)
-        mock_select.return_value.ask.side_effect = ["6.) 💞 Help", "7.) ⏻  Exit", "7.) ⏻  Exit"]
+        # Main Menu -> Help, 2. Help Menu -> Back, 3. Main Menu -> Exit
+        mock_select.return_value.ask.side_effect = [
+            "6.)  Help", # Check / Compare with app.py!
+            "↩ Back", 
+            "7.) ⏻  Exit"
+        ]
         
         with patch('qm2.app.questionary.confirm') as mock_confirm:
             mock_confirm.return_value.ask.return_value = True
-            
-            # Mock user input for help (press Enter to continue)
             with patch('builtins.input') as mock_input:
                 mock_input.return_value = ""
-                
-                # Run main app
                 main()
         
-        # Verify components
         mock_logo.assert_called()
-        assert mock_select.return_value.ask.call_count >= 1
-        mock_confirm.assert_called()
-    
+        assert mock_select.return_value.ask.call_count == 3
+
     @patch('qm2.app.questionary.select')
     @patch('qm2.app.show_logo')
     def test_tools_menu_flow(self, mock_logo, mock_select):
