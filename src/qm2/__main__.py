@@ -1,27 +1,24 @@
 import argparse
+import importlib.metadata
 from .app import main as run_app
 from qm2.paths import ensure_dirs, migrate_legacy_paths
 
 def main():
-    # Define the argument parser
+    # Get version from metadata automatically
+    try:
+        __version__ = importlib.metadata.version("qm2")
+    except importlib.metadata.PackageNotFoundError:
+        __version__ = "1.0.15" # Fallback
+
     parser = argparse.ArgumentParser(
         prog="qm2", 
         description="Quiz Maker 2 (QM2) - Interactive Terminal Quiz Application"
     )
     
-    # Add --version
     parser.add_argument(
         "-v", "--version", 
         action="version", 
-        version="qm2 1.0.15" # Update this whenever you bump version
-    )
-    
-    # Add --data-dir (even if you don't use it yet in app.main, 
-    # it's good to have it parsed)
-    parser.add_argument(
-        "--data-dir", 
-        type=str, 
-        help="Path to custom data directory"
+        version=f"qm2 {__version__}" # Now it uses the dynamic version
     )
 
     # Parse arguments
