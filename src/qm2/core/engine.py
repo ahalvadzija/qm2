@@ -306,8 +306,47 @@ def quiz_session(questions: list[dict[str, Any]], score_file: str | Path) -> Non
     correct_count = wrong_count = timeout_count = 0
     start_time = time.time()
 
-    for q in questions:
-        console.rule("[bold blue]Question", characters="━")
+    total_q = len(questions)
+    for i, q in enumerate(questions, start=1):
+        
+        # Milestone Notification (every 15 questions)
+        if i > 1 and (i - 1) % 15 == 0:
+            current_accuracy = (correct_count / (i - 1)) * 100
+            console.print("\n")
+
+            if current_accuracy >= 80:
+                msg = "🚀 [bold green]Amazing work![/bold green] You're crushing it!"
+            elif current_accuracy >= 50:
+                msg = "⚖️ [bold yellow]Not bad![/bold yellow] Keep a steady pace."
+            else:
+                msg = "🧗 [bold red]Don't give up![/bold red] Reviewing the flashcards might help."
+            
+            # English comment: Construct the milestone panel content into a single f-string
+            panel_content = (
+                f"🎯 [bold]Checkpoint reached![/bold]\n"
+                f"📝 Finished: [cyan]{i-1}/{total_q}[/cyan] questions\n"
+                f"📈 Accuracy: [bold]{current_accuracy:.1f}%[/bold]\n\n"
+                f"{msg}"
+            )
+
+            console.print(Panel(
+                panel_content,
+                title="[yellow]Milestone[/yellow]",
+                border_style="bright_magenta",
+                expand=False
+            ))
+            time.sleep(1.5)
+
+        # English comment: Calculate visual progress components
+        progress_pct = int(((i - 1) / total_q) * 100)
+        bar_len = 20
+        filled = int(bar_len * (i - 1) // total_q)
+        bar = "█" * filled + "░" * (bar_len - filled)
+
+        # Use the calculated bar and percentage in the header rule
+        header_text = f"Question {i}/{total_q} | {bar} | {progress_pct}%"
+        console.rule(f"[bold blue]{header_text}", characters="━")
+        
         console.print(f"\n[bold]{q['question']}[/bold]")
 
         if q["type"] in ("multiple", "truefalse"):
@@ -332,37 +371,65 @@ def quiz_session(questions: list[dict[str, Any]], score_file: str | Path) -> Non
     _show_quiz_statistics(correct_count, wrong_count, timeout_count, len(questions), duration)
     _save_quiz_result(score_file, correct_count, wrong_count, timeout_count, len(questions), duration)
 
-
 def flashcards_mode(questions: list[dict[str, Any]]) -> None:
     if not questions:
         console.print("[red]⚠️ No questions for flashcards.")
         return
 
     valid_questions = [q for q in questions if _is_valid_question(q)]
-    skipped = len(questions) - len(valid_questions)
-    if skipped > 0:
-        console.print(f"[yellow]⚠️ Skipped {skipped} invalid question(s).[/yellow]")
     if not valid_questions:
         console.print("[red]⚠️ No valid questions available.")
         return
 
     questions = valid_questions
     random.shuffle(questions)
-    for q in questions:
-        console.rule("[bold cyan]Flashcard")
-        console.print(Panel(f"[bold]{q['question']}[/bold]"))
+    
+    # Iterate through flashcards with progress tracking
+    total_q = len(questions)
+    for i, q in enumerate(questions, start=1):
+        
+        # Milestone / Break
+        # English comment: Periodic break to prevent study fatigue
+        if i > 1 and (i - 1) % 15 == 0:
+            console.clear()
+            console.print(Panel(
+                f"🧠 [bold]Flashcard Milestone[/bold]\n"
+                f"📖 You have reviewed [cyan]{i-1}/{total_q}[/cyan] cards.\n"
+                f"🌟 Take a deep breath and keep going!",
+                title="[yellow]Study Break[/yellow]",
+                border_style="bold magenta",
+                expand=False
+            ))
+            Prompt.ask("\nPress Enter when you are ready to continue")
+            console.clear()
 
+        # Progress Header
+        # Calculate visual progress components
+        progress_pct = int(((i - 1) / total_q) * 100)
+        bar_len = 20
+        filled = int(bar_len * (i - 1) // total_q)
+        bar = "█" * filled + "░" * (bar_len - filled)
+        
+        header_text = f"Flashcard {i}/{total_q} | {bar} | {progress_pct}%"
+        console.rule(f"[bold cyan]{header_text}", characters="━")
+
+        # Question Display
+        console.print(Panel(
+            f"[bold]{q['question']}[/bold]",
+            subtitle="[dim]Question[/dim]",
+            border_style="bright_blue"
+        ))
+
+        # Wait for user to reveal the answer
         ans = Prompt.ask("Press Enter to reveal answer or 'x' to exit", default="")
         if ans.strip().lower() == "x":
             if _check_quit_confirmation("Do you want to exit flashcards mode?"):
-                console.print("[yellow]⏹️ Exited flashcards mode.")
                 break
 
+        # Answer Display
         if q["type"] == "match":
             import json
-            
             pairs = q.get("pairs", {})
-            # Handle pairs as string (from CSV) or dict
             if isinstance(pairs, str):
                 try:
                     pairs = json.loads(pairs)
@@ -370,10 +437,7 @@ def flashcards_mode(questions: list[dict[str, Any]]) -> None:
                     console.print("[red]⚠️ Invalid matching format in flashcard.")
                     continue
             
-            left = pairs.get("left", [])
-            right = pairs.get("right", [])
-            correct = pairs.get("answers", {})
-
+            left, right, correct = pairs.get("left", []), pairs.get("right", []), pairs.get("answers", {})
             table = Table(box=box.SIMPLE)
             table.add_column("Left", style="cyan")
             table.add_column("Right", style="magenta")
@@ -381,13 +445,21 @@ def flashcards_mode(questions: list[dict[str, Any]]) -> None:
                 l_item = left[ord(key) - 97]
                 r_item = right[int(val) - 1]
                 table.add_row(f"{key}) {l_item}", f"{val}. {r_item}")
+            
             console.print("[green]✅ Correct matching:")
             console.print(table)
         else:
-            console.print(f"[green]✅ Correct answer: {q['correct']}[/]")
+            console.print(Panel(
+                f"[bold green]{q['correct']}[/bold green]",
+                title="Answer",
+                border_style="green",
+                expand=False
+            ))
 
-        cont = Prompt.ask("Press Enter to continue or 'x' to exit", default="")
+        # Manual transition to next card or exit
+        cont = Prompt.ask("\nPress Enter for next card or 'x' to exit", default="")
         if cont.strip().lower() == "x":
             if _check_quit_confirmation("Do you want to exit flashcards mode?"):
-                console.print("[yellow]⏹️ Exited flashcards mode.")
                 break
+        
+        console.clear() # Clear screen for the next card to maintain focus
