@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "qm2"
-version = "1.0.15"
+version = "1.0.16"
 description = "CLI-based quiz maker application with categories and import/export support."
 readme = "README.md"
 requires-python = ">=3.9"
@@ -51,7 +51,7 @@ pythonpath = ["src"]
 qm2 = "qm2.__main__:main"
 
 [tool.bumpver]
-current_version = "1.0.15"
+current_version = "1.0.16"
 version_pattern = "MAJOR.MINOR.PATCH"
 commit_message = "bump version {old_version} -> {new_version}"
 tag_message = "{new_version}"
