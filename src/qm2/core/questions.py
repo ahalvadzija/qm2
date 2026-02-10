@@ -10,6 +10,7 @@ from rich import box
 from rich.prompt import Prompt
 import questionary
 
+from qm2.utils.ui import select_with_pagination
 from qm2.utils.files import load_json, save_json
 
 console = Console()
@@ -186,12 +187,13 @@ def edit_question(questions: list[dict[str, Any]]) -> None:
         console.print("[yellow]⚠️ No questions available to edit.")
         return
 
-    choices = [f"{i + 1}. {q['question'][:50]}..." for i, q in enumerate(questions)]
-    selection = questionary.select(
-        "✏️ Choose a question to edit:", choices=choices + ["↩ Back"]
-    ).ask()
 
-    if selection == "↩ Back":
+    choices = [f"{i + 1}. {q['question'][:50]}..." for i, q in enumerate(questions)]
+    selection = select_with_pagination(
+        "✏️ Choose a question to edit:", choices=choices + ["↩ Back"]
+    )
+
+    if not selection or selection == "↩ Back":
         return
 
     index = int(selection.split(".")[0]) - 1
@@ -402,16 +404,23 @@ def delete_question(category_file: str) -> None:
         console.print("[red]No questions to delete.[/red]")
         return
 
-    # Extracting question texts for the selection menu
-    choices = [q.get("question", "<no text>") for q in questions]
-    choice = questionary.select("Select a question to delete:", choices=choices).ask()
+    # Added numbers
+    choices = [f"{i+1}. {q.get('question', '<no text>')[:50]}..." for i, q in enumerate(questions)]
+    
+    # Without .ask, we can use our custom pagination function that returns the selected string
+    selection = select_with_pagination(
+        "Select a question to delete:", 
+        choices=choices + ["↩ Back"]
+    )
     
     # Handle user cancellation
-    if not choice:
+    if not selection or selection == "↩ Back":
         return
 
-    # Fix: choices.index(choice) returns a 0-based index.
-    # We add +1 because _delete_question_core expects a 1-based index 
-    # to perform its internal 'index - 1' calculation.
-    index = choices.index(choice) + 1 
-    _delete_question_core(category_file, index)
+    # Grab the index from the selected string (e.g., "3. What is...?") and convert to 0-based
+    try:
+        index = int(selection.split(".")[0])
+        # _delete_question_core works with 1-based index, so we can pass it directly
+        _delete_question_core(category_file, index)
+    except (ValueError, IndexError):
+        console.print("[red]⚠️ Error parsing selection.[/red]")

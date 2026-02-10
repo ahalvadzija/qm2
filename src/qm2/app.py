@@ -16,6 +16,7 @@ from qm2.core.import_export import csv_to_json as core_csv_to_json, json_to_csv 
 from qm2.core.templates import create_csv_template, create_json_template
 from qm2.core.engine import quiz_session, flashcards_mode
 from qm2.core.validation import is_file_valid
+from qm2.utils.ui import select_with_pagination
 
 from qm2.core.categories import (
     get_categories,
@@ -139,48 +140,6 @@ def import_remote_file() -> None:
         refresh_csv_cache()  # Refresh CSV cache
         console.print(f"[green]✅ CSV file downloaded to:\n{saved}")
 
-def select_with_pagination(items: list[str], prompt_text: str, page_size: int = 10) -> str | None:
-    """ Universal helper for pagination."""
-    if not items:
-        return None
-        
-    page = 0
-    total_pages = (len(items) + page_size - 1) // page_size
-    
-    while True:
-        start = page * page_size
-        end = min(start + page_size, len(items))
-        
-        # Build current page choices
-        current_batch = items[start:end]
-        choices = []
-        
-        # Added navigation "Previous" if we are not on the fist page
-        if page > 0:
-            choices.append(Choice("⟨ Previous Page", value="prev"))
-            
-        # Added real item as choices
-        choices.extend(current_batch)
-        
-        # Added navigation "Next" if have more pages
-        if page < total_pages - 1:
-            choices.append(Choice("Next Page ⟩", value="next"))
-            
-        choices.append(Choice("↩ Back", value="back"))
-        
-        selection = questionary.select(
-            f"{prompt_text} (Page {page + 1}/{total_pages})",
-            choices=choices
-        ).ask()
-        
-        if selection == "next":
-            page += 1
-        elif selection == "prev":
-            page -= 1
-        elif selection == "back" or selection is None:
-            return None
-        else:
-            return selection
 
 def _handle_quiz_choice(score_file: str) -> None:
     """Handle 'Start Quiz' menu option."""

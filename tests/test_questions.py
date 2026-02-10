@@ -529,11 +529,11 @@ def test_delete_question_valid():
     questions.questions_cache.clear()
     
     try:
-        with patch('qm2.core.questions.questionary.select') as mock_select, \
+        with patch('qm2.core.questions.select_with_pagination') as mock_pagination, \
              patch('qm2.core.questions.console'):
             
             # Simulate selecting the first question
-            mock_select.return_value.ask.return_value = "First Question"
+            mock_pagination.return_value = "1. First Question..."
             
             questions.delete_question(str(temp_file))
             
