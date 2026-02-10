@@ -1,5 +1,4 @@
 from unittest.mock import patch
-import os
 from qm2.core.categories import (
     delete_json_quiz_file, 
     categories_add, 

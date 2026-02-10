@@ -21,8 +21,7 @@ from qm2.utils.ui import select_with_pagination
 from qm2.core.categories import (
     get_categories,
     categories_add,
-    delete_json_quiz_file,
-    select_category, 
+    delete_json_quiz_file, 
 )
 
 from qm2.core.questions import (

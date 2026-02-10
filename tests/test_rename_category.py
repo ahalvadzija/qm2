@@ -1,5 +1,4 @@
 import qm2.core.categories as categories
-from pathlib import Path
 
 def test_rename_category_normalizes_extension(monkeypatch, tmp_path):
     # Setup test directory
