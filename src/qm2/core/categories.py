@@ -48,6 +48,20 @@ def get_categories(
     cats = [c for c in base if isinstance(c, str) and c.endswith(".json")]
     return list(cats)
 
+def _get_formatted_choices() -> list[Choice]:
+    """Helper to get paginated-ready choices for category files."""
+    rel_files = get_categories()
+    choices = []
+    for f in rel_files:
+        p = Path(f)
+
+        category_name = p.parent.name if p.parent.name and p.parent.name != "." else "General"
+        
+        display = f"📁 {category_name} › {p.stem}"
+        
+        choices.append(Choice(title=display, value=f))
+        
+    return choices
 
 def select_category(allow_create: bool = True) -> str | None:
     categories = get_categories()
@@ -113,31 +127,41 @@ def rename_category(root_dir: str | None = None) -> None:
     if root_dir is None:
         root_dir = categories_root_dir()
     
-    rel_files = get_categories()
-    if not rel_files:
+    # use helper to get formatted choices for pagination (returns list of Choice objects with 'value' as relative path)
+    choices = _get_formatted_choices()
+    
+    if not choices:
         console.print("[yellow]⚠️ No categories to rename.")
         return
 
-    choice = questionary.select(
-        "✏️ Choose a category to rename:", choices=rel_files + ["↩ Back"]
-    ).ask()
-    if choice == "↩ Back":
+    # use pagination select, it will return the 'value' from Choice (relative path) or "back"/None
+    choice = select_with_pagination("✏️ Choose a category to rename:", choices)
+    
+    if choice == "↩ Back" or choice is None:
         return
 
+    # 'choice' is now the relative path of the selected category file, we can construct the absolute path
     old_path = os.path.join(root_dir, choice)
-    new_name_input = Prompt.ask("📝 New file name (without .json)").strip()
+    
+    # show current name and prompt for new name
+    current_stem = Path(old_path).stem
+    new_name_input = Prompt.ask(f"📝 New name for '{current_stem}' (without .json)").strip()
 
-    # normalize name
-    new_name = Path(new_name_input).stem + ".json"
-
-    # Validate new file name
-    if not new_name_input or any(c in new_name_input for c in ["<", ">", ":", '"', "|", "?", "*"]):
-        console.print("[red]⚠️ Invalid file name. Please avoid special characters.")
+    if not new_name_input:
+        console.print("[yellow]↩ Rename canceled (empty name).")
         return
 
+    # Validate new name for invalid characters
+    if any(c in new_name_input for c in ["<", ">", ":", '"', "/", "\\", "|", "?", "*"]):
+        console.print("[red]⚠️ Invalid characters in name.")
+        return
+
+    # Normalize new name to ensure it ends with .json
+    new_name = Path(new_name_input).stem + ".json"
     new_path = os.path.join(os.path.dirname(old_path), new_name)
 
-    if os.path.exists(new_path):
+    # check if new path already exists and is different from old path
+    if os.path.exists(new_path) and old_path != new_path:
         confirm = questionary.confirm(f"⚠️ File '{new_name}' already exists. Overwrite?").ask()
         if not confirm:
             console.print("[yellow]↩ Rename canceled.")
@@ -145,13 +169,15 @@ def rename_category(root_dir: str | None = None) -> None:
 
     try:
         os.rename(old_path, new_path)
-        console.print("[DEBUG] About to rename file")
-        categories_rename(choice, os.path.relpath(new_path, root_dir))
-        refresh_categories_cache()  # Refresh cache after rename
-        console.print(f"[green]✅ Category renamed: {new_path}")
+        
+        # update cache: remove old relative path and add new relative path
+        new_rel_path = os.path.relpath(new_path, root_dir)
+        categories_rename(choice, new_rel_path)
+        refresh_categories_cache()
+        
+        console.print(f"[green]✅ Renamed to: {new_name}")
     except OSError as e:
         console.print(f"[red]⚠️ Error renaming file: {e}")
-        return
 
 def categories_remove(path: str, root_dir: str | None = None) -> None:
     if root_dir is None:
@@ -168,29 +194,31 @@ def delete_category(root_dir: str | None = None) -> None:
     if root_dir is None:
         root_dir = categories_root_dir()
 
-    rel_files = get_categories()
-    if not rel_files:
+    choices = _get_formatted_choices() # Call helper to get Choice objects for pagination
+    if not choices:
         console.print("[yellow]⚠️ No categories to delete.")
         return
 
-    choice = questionary.select(
-        "🗑️ Choose a category to delete:", choices=rel_files + ["↩ Back"]
-    ).ask()
-    if choice == "↩ Back":
+    # call pagination with Choice objects, it will return the 'value' (relative path) or "back"
+    choice = select_with_pagination("🗑️ Choose a category to delete:", choices)
+    
+    # select_with_pagination returns the 'value' from Choice (relative path) or "back"/None
+    if choice == "back" or choice == "↩ Back" or choice is None:
         return
 
     path = os.path.join(root_dir, choice)
-    confirm = questionary.confirm(f"⚠️ Are you sure you want to delete category: {choice}?").ask()
+    
+    # For confirmation, we can show the formatted name again for better UX
+    confirm = questionary.confirm(f"⚠️ Are you sure you want to delete: {choice}?").ask()
     if confirm:
         try:
             os.remove(path)
             categories_remove(choice)
-            refresh_categories_cache()  # Refresh cache after deletion
+            refresh_categories_cache()
             console.print(f"[red]❌ Category deleted: {choice}")
         except OSError as e:
-            console.print(f"[red]⚠️ Error deleting file: {e}")
-            return
-        
+            console.print(f"[red]⚠️ Error: {e}")
+
 def categories_rename(
     old_path: str, new_path: str, root_dir: str | None = None
 ) -> None:

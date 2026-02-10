@@ -145,9 +145,17 @@ def _handle_quiz_choice(score_file: str) -> None:
     """Handle 'Start Quiz' menu option."""
     all_categories = get_categories() 
     
-    selection = select_with_pagination("🚀 Choose a quiz to start", all_categories)
+    formatted_choices = []
+    for cat in all_categories:
+
+        p = Path(cat)
+        display_label = f"📁 {p.parent.name} › {p.stem}"
+        
+        formatted_choices.append(Choice(title=display_label, value=cat))
     
-    if selection:
+    selection = select_with_pagination("🚀 Choose a quiz to start", formatted_choices)
+    
+    if selection and selection != "↩ Back":
         filename = os.path.join(categories_root_dir(), selection)
         quiz_name = Path(filename).stem 
         questions = get_questions(filename)
@@ -159,13 +167,18 @@ def _handle_quiz_choice(score_file: str) -> None:
 def _handle_flashcards_choice() -> None:
     """Handle 'Flashcards Learning' menu option."""
     all_categories = get_categories()
-    selection = select_with_pagination("🚀 Choose a quiz to start", all_categories)
     
-    if selection:
+    formatted_choices = [
+        Choice(title=f"📁 {Path(cat).parent.name} › {Path(cat).stem}", value=cat) 
+        for cat in all_categories
+    ]
+    
+    selection = select_with_pagination("📚 Choose cards to study", formatted_choices)
+    
+    if selection and selection != "↩ Back":
         filename = os.path.join(categories_root_dir(), selection)
         questions = get_questions(filename)
         flashcards_mode(questions)
-
 
 def _handle_categories_management() -> None:
     """Handle 'Manage categories' submenu."""
@@ -195,9 +208,14 @@ def _handle_categories_management() -> None:
 
 def _handle_questions_submenu(filename: str, questions: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """Handle questions submenu for a category. Returns updated questions list."""
+    # Pripremamo ljepši naslov koristeći Path
+    p = Path(filename)
+    category_name = p.parent.name if p.parent.name and p.parent.name != "." else "General"
+    clean_title = f"📁 {category_name} › {p.stem}"
+
     while True:
         sub_choice = questionary.select(
-            f"════════════════════════════════════════════════════════════\n 📂 Manage questions ({filename})",
+            f"📍 {clean_title}\n 🛠️  Manage questions:",
             choices=[
                 "📚 Show all questions",
                 "🔢 Edit by number",
@@ -210,7 +228,7 @@ def _handle_questions_submenu(filename: str, questions: list[dict[str, Any]]) ->
             ],
         ).ask()
 
-        if sub_choice == "↩ Back":
+        if sub_choice == "↩ Back" or sub_choice is None:
             break
 
         if sub_choice == "📚 Show all questions":
@@ -262,8 +280,18 @@ def _handle_questions_menu() -> None:
             console.print("[yellow]⚠️ No categories found.")
             return
         
-        choices_for_pagination = raw_categories + ["🛠️ Manage categories"]
+        # Transforming raw category paths into display choices with 'value' as relative path for pagination --- IGNORE ---
+        choices_for_pagination = []
+        for cat in raw_categories:
+            p = Path(cat)
+            category_name = p.parent.name if p.parent.name and p.parent.name != "." else "General"
+            display = f"📁 {category_name} › {p.stem}"
+            choices_for_pagination.append(Choice(title=display, value=cat))
+            
+        # Adding "Manage categories" option at the end of the choices for pagination --- IGNORE ---
+        choices_for_pagination.append(Choice(title="🛠️ Manage categories", value="manage"))
         
+        # Calling pagination select, it will return the 'value' from Choice (relative path) or "back"/None --- IGNORE ---
         selection = select_with_pagination(
             "📂 Questions - choose a category or option:",
             choices_for_pagination
@@ -272,13 +300,13 @@ def _handle_questions_menu() -> None:
         if selection == "↩ Back" or selection is None:
             break
 
-        if selection == "🛠️ Manage categories":
+        if selection == "manage":
             _handle_categories_management()
         else:
+            # Selection is the relative path of the category file, we can construct the absolute path
             filename = os.path.join(categories_root_dir(), selection)
             questions = get_questions(filename)
             _handle_questions_submenu(filename, questions)
-
 
 def _handle_stats_menu(score_file: str) -> None:
     """Handle 'Statistics' menu option."""

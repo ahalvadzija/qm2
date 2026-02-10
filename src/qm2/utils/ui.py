@@ -1,14 +1,18 @@
 from __future__ import annotations
 import questionary
 from questionary import Choice
+from typing import Any
 
-def select_with_pagination(prompt_text: str, choices: list[str], page_size: int = 10) -> str | None:
-    """Universal helper for pagination - matches Name's call signature."""
+def select_with_pagination(prompt_text: str, choices: list, page_size: int = 10) -> Any:
+    """Universal helper for pagination - handles both strings and Choice objects."""
     if not choices:
         return None
         
     page = 0
-    actual_items = [c for c in choices if c != "↩ Back"]
+
+    actual_items = [c for c in choices if (isinstance(c, str) and c != "↩ Back") or 
+                    (isinstance(c, Choice) and c.title != "↩ Back")]
+    
     total_pages = (len(actual_items) + page_size - 1) // page_size
     
     while True:
