@@ -266,6 +266,7 @@ def _show_quiz_statistics(
 
 def _save_quiz_result(
     score_file: str | Path,
+    quiz_name: str,
     correct_count: int,
     wrong_count: int,
     timeout_count: int,
@@ -276,6 +277,7 @@ def _save_quiz_result(
     scores = load_json(str(score_file))
     scores.append(
         {
+            "quiz_name": quiz_name,
             "correct": correct_count,
             "wrong": wrong_count,
             "unanswered": timeout_count,
@@ -288,7 +290,7 @@ def _save_quiz_result(
         console.print("[red]⚠️ Failed to save quiz results.")
 
 
-def quiz_session(questions: list[dict[str, Any]], score_file: str | Path) -> None:
+def quiz_session(questions: list[dict[str, Any]], score_file: str | Path, quiz_name: str = "Unknown Quiz") -> None:
     if not questions:
         console.print("[red]⚠️ No available questions.")
         return
@@ -369,7 +371,7 @@ def quiz_session(questions: list[dict[str, Any]], score_file: str | Path) -> Non
 
     duration = int(time.time() - start_time)
     _show_quiz_statistics(correct_count, wrong_count, timeout_count, len(questions), duration)
-    _save_quiz_result(score_file, correct_count, wrong_count, timeout_count, len(questions), duration)
+    _save_quiz_result(score_file, quiz_name, correct_count, wrong_count, timeout_count, len(questions), duration)
 
 def flashcards_mode(questions: list[dict[str, Any]]) -> None:
     if not questions:

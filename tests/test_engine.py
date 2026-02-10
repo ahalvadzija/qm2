@@ -275,7 +275,7 @@ def test_handle_match_question_timeout(mock_confirm, mock_input, sample_matching
 def test_quiz_session_empty_questions(temp_score_file):
     """Test quiz_session with empty questions list."""
     with patch('qm2.core.engine.console') as mock_console:
-        engine.quiz_session([], temp_score_file)
+        engine.quiz_session([], temp_score_file, "Test Quiz")
         mock_console.print.assert_called_with("[red]⚠️ No available questions.")
 
 
@@ -362,7 +362,7 @@ def test_save_quiz_result(temp_score_file):
             mock_save.return_value = True
             
             engine._save_quiz_result(
-                temp_score_file, 5, 3, 2, 10, 120
+                temp_score_file, "Test Quiz", 5, 3, 2, 10, 120
             )
             
             # Verify save was called with updated data
@@ -389,7 +389,7 @@ def test_save_quiz_result_save_failure(temp_score_file):
                 mock_save.return_value = False  # Save fails
                 
                 engine._save_quiz_result(
-                    temp_score_file, 1, 0, 0, 1, 60
+                    temp_score_file, "Test Quiz", 1, 0, 0, 1, 60
                 )
                 
                 # Should print error message

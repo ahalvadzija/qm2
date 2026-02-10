@@ -145,8 +145,15 @@ def _handle_quiz_choice(score_file: str) -> None:
     print("   ═══════════════════════ Categories ════════════════════════")
     filename = select_category(allow_create=False)
     if filename:
+        # Extract the clean name of the quiz from the path
+        # e.g., 'path/to/dataset-20.json' becomes 'dataset-20'
+        quiz_name = Path(filename).stem 
+        
         questions = get_questions(filename)
-        quiz_session(questions, score_file)
+        
+        # Pass the quiz_name to the engine so it can be saved in stats
+        quiz_session(questions, score_file, quiz_name=quiz_name)
+        
         input("\nPress Enter to return to the main menu...")
 
 
