@@ -8,7 +8,7 @@ def main():
     try:
         __version__ = importlib.metadata.version("qm2")
     except importlib.metadata.PackageNotFoundError:
-        __version__ = "1.0.21" # Fallback
+        __version__ = "1.0.22" # Fallback
 
     parser = argparse.ArgumentParser(
         prog="qm2", 
