@@ -10,6 +10,8 @@ from rich.prompt import Prompt
 
 from qm2.paths import CATEGORIES_DIR, CSV_DIR
 from qm2.utils.files import save_json
+from questionary import Choice
+from qm2.utils.ui import select_with_pagination
 
 categories_cache: list[str] | None = None
 console = Console()
@@ -276,7 +278,8 @@ def delete_json_quiz_file(root_dir: str | None = None) -> None:
 
     choices = json_rel + ["↩ Back"]
 
-    choice = questionary.select("🗑️ Choose a .json file to delete:", choices=choices).ask()
+    choice = select_with_pagination(
+    "🗑️ Choose a .json file to delete:", choices)
 
     if choice == "↩ Back":
         return

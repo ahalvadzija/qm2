@@ -1,4 +1,5 @@
 from unittest.mock import patch
+import os
 from qm2.core.categories import (
     delete_json_quiz_file, 
     categories_add, 
@@ -8,21 +9,24 @@ from qm2.core.categories import (
 )
 
 def test_delete_json_quiz_file_permission_denied():
-    """Covers PermissionError during file deletion."""
+    """Tests PermissionError when deleting a category file."""
+    # We must patch select_with_pagination where it is USED (in core.categories)
+    # This prevents the function from trying to open a real terminal menu
     with patch('qm2.core.categories.get_categories', return_value=["test.json"]), \
-         patch('qm2.core.categories.questionary.select') as mock_sel, \
+         patch('qm2.core.categories.select_with_pagination', return_value="test.json"), \
          patch('qm2.core.categories.questionary.confirm') as mock_conf, \
          patch('qm2.core.categories.console.print') as mock_print, \
          patch('os.remove', side_effect=PermissionError("Permission denied")):
         
-        mock_sel.return_value.ask.return_value = "test.json"
+        # Simulate user confirming the deletion via questionary
         mock_conf.return_value.ask.return_value = True
         
+        # Execute the function that we are testing
         delete_json_quiz_file()
         
-        # Verify message using 'in' to avoid emoji/variation selector mismatches
+        # Verify that the error message was printed to the Rich console
         args, _ = mock_print.call_args
-        assert "Error deleting file: Permission denied" in args[0]
+        assert "Error" in args[0] and "Permission denied" in args[0]
 
 def test_categories_add_internal_logic():
     """Directly tests the addition and cache synchronization."""
@@ -54,26 +58,21 @@ def test_create_new_category_invalid_names():
 
 def test_rename_category_invalid_input():
     """Covers validation logic when renaming a category with forbidden characters."""
-    # We patch get_categories to return a list with our target file
+    # Patch select_with_pagination to return the file we want to rename
     with patch('qm2.core.categories.get_categories', return_value=["test.json"]), \
-         patch('qm2.core.categories.questionary.select') as mock_select, \
+         patch('qm2.core.categories.select_with_pagination', return_value="test.json"), \
          patch('qm2.core.categories.Prompt.ask') as mock_prompt, \
          patch('qm2.core.categories.console.print') as mock_print, \
-         patch('os.rename'): # Prevent actual renaming on disk
-        
-        # Select the existing file
-        mock_select.return_value.ask.return_value = "test.json"
+         patch('os.rename'): 
         
         # Provide a name with a forbidden character '/'
-        # Based on your output, the app seems to sanitize this to 'name' 
-        # instead of showing an error. Let's verify the 'renamed' message appears.
+        # Our new validation should catch this
         mock_prompt.return_value = "illegal/name"
         
         rename_category()
         
-        # Check all print calls
+        # Collect all printed output to check for validation error
         all_printed = "".join([str(call) for call in mock_print.call_args_list])
         
-        # If your intention is that it SHOULD fail, check for "Invalid"
-        # If your app actually sanitizes it, check for "Category renamed"
-        assert "Category renamed" in all_printed or "Invalid file name" in all_printed
+        # Verify that our validation caught the illegal character
+        assert "Invalid characters" in all_printed or "Invalid file name" in all_printed

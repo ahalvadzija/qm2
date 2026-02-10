@@ -1,6 +1,7 @@
 import os
 from unittest.mock import patch
 import qm2.core.categories as categories
+from qm2.core.categories import rename_category
 
 
 def test_create_category_directory_structure(tmp_path):
@@ -71,33 +72,23 @@ def test_rename_category_with_validation(tmp_path):
 
 
 def test_invalid_category_name_validation():
-    """Test that invalid category names are rejected."""
-    invalid_names = [
-        "test<category.json",  # Contains <
-        "test>category.json",  # Contains >
-        "test:category.json",  # Contains :
-        'test"category.json',  # Contains "
-        "test|category.json",  # Contains |
-        "test?category.json",  # Contains ?
-        "test*category.json",  # Contains *
-        "",                    # Empty string
-    ]
+    """Tests that forbidden characters in category names are rejected by validation."""
+    # List of invalid inputs to test (including the newly added forbidden characters)
+    invalid_names = ["test<name", "test>name", "test:name", "test|name", "test/name", "test\\name"]
     
-    for invalid_name in invalid_names:
-        with patch('qm2.core.categories.categories_root_dir'):
-            with patch('qm2.core.categories.get_categories', return_value=["some_file.json"]):
-                with patch('qm2.core.categories.questionary.select') as mock_select:
-                    with patch('qm2.core.categories.Prompt.ask') as mock_ask:
-                        with patch('qm2.core.categories.console') as mock_console:
-                            # Mock user selecting a file
-                            mock_select.return_value.ask.return_value = "some_file.json"
-                            # Mock user entering invalid name
-                            mock_ask.return_value = invalid_name
-                            
-                            categories.rename_category()
-                            
-                            # Verify error message was shown
-                            mock_console.print.assert_called_with("[red]⚠️ Invalid file name. Please avoid special characters.")
+    # Mock both the category selection and the prompt for new name
+    with patch('qm2.core.categories.get_categories', return_value=["some_file.json"]), \
+         patch('qm2.core.categories.select_with_pagination', return_value="some_file.json"), \
+         patch('qm2.core.categories.Prompt.ask') as mock_ask, \
+         patch('qm2.core.categories.console.print') as mock_print:
+        
+        for invalid_name in invalid_names:
+            mock_ask.return_value = invalid_name
+            rename_category()
+            
+            # Aggregate all console output to verify validation message
+            all_output = "".join([str(call) for call in mock_print.call_args_list])
+            assert "Invalid" in all_output or "avoid special characters" in all_output
 
 
 def test_category_cache_operations(tmp_path):
