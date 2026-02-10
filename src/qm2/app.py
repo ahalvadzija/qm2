@@ -145,7 +145,7 @@ def _handle_quiz_choice(score_file: str) -> None:
     """Handle 'Start Quiz' menu option."""
     all_categories = get_categories() 
     
-    selection = select_with_pagination(all_categories, "🚀 Choose a quiz to start")
+    selection = select_with_pagination("🚀 Choose a quiz to start", all_categories)
     
     if selection:
         filename = os.path.join(categories_root_dir(), selection)
@@ -159,7 +159,7 @@ def _handle_quiz_choice(score_file: str) -> None:
 def _handle_flashcards_choice() -> None:
     """Handle 'Flashcards Learning' menu option."""
     all_categories = get_categories()
-    selection = select_with_pagination(all_categories, "👾 Choose a quiz for Flashcards")
+    selection = select_with_pagination("🚀 Choose a quiz to start", all_categories)
     
     if selection:
         filename = os.path.join(categories_root_dir(), selection)
