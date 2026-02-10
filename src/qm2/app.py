@@ -256,25 +256,20 @@ def _handle_questions_submenu(filename: str, questions: list[dict[str, Any]]) ->
 def _handle_questions_menu() -> None:
     """Handle 'Questions' menu option."""
     while True:
-        categories_choices = get_categories()
+        raw_categories = get_categories()
         
-        # Check if there are no categories
-        if not categories_choices:
+        if not raw_categories:
             console.print("[yellow]⚠️ No categories found.")
             return
         
-        categories_choices += [
-            Choice("──────────── MANAGE ────────────", disabled="✖"),
-            "🛠️ Manage categories",
-            "↩ Back",
-        ]
+        choices_for_pagination = raw_categories + ["🛠️ Manage categories"]
+        
+        selection = select_with_pagination(
+            "📂 Questions - choose a category or option:",
+            choices_for_pagination
+        )
 
-        selection = questionary.select(
-            "════════════════════════════════════════════════════════════\n 📂 Questions - choose a category or option:",
-            choices=categories_choices,
-        ).ask()
-
-        if selection == "↩ Back":
+        if selection == "↩ Back" or selection is None:
             break
 
         if selection == "🛠️ Manage categories":
