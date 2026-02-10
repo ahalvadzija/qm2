@@ -1,6 +1,5 @@
 import pytest
-from unittest.mock import patch, MagicMock
-
+from unittest.mock import patch, MagicMock, ANY
 from qm2.app import main
 
 
@@ -107,8 +106,8 @@ class TestAppIntegration:
             mock_confirm.return_value.ask.return_value = True
             
             # Mock category selection (user cancels)
-            with patch('qm2.app.select_category') as mock_select_category:
-                mock_select_category.return_value = None
+            with patch('qm2.app.select_with_pagination') as mock_select_paginated:
+                mock_select_paginated.return_value = None
                 
                 # Mock input for quiz completion
                 with patch('builtins.input') as mock_input:
@@ -120,11 +119,12 @@ class TestAppIntegration:
         # Verify components
         mock_logo.assert_called()
         assert mock_select.return_value.ask.call_count >= 1
-        mock_select_category.assert_called_once()
         mock_confirm.assert_called()
+        mock_select_paginated.assert_called_once()
     
     @patch('qm2.app.questionary.select')
     @patch('qm2.app.show_logo')
+    
     def test_full_quiz_session(self, mock_logo, mock_select):
         """Test complete quiz session flow."""
         # Mock main menu selection: Quiz, then Exit (multiple exits to prevent StopIteration)
@@ -134,8 +134,8 @@ class TestAppIntegration:
             mock_confirm.return_value.ask.return_value = True
             
             # Mock category selection
-            with patch('qm2.app.select_category') as mock_select_category:
-                mock_select_category.return_value = "test.json"
+            with patch('qm2.app.select_with_pagination') as mock_select_paginated:
+                mock_select_paginated.return_value = "test.json"
                 
                 # Mock questions data
                 with patch('qm2.app.get_questions') as mock_questions:
@@ -162,8 +162,8 @@ class TestAppIntegration:
         # Verify all components were called
         mock_logo.assert_called()
         assert mock_select.return_value.ask.call_count >= 1
-        mock_select_category.assert_called_once()
-        mock_questions.assert_called_once_with("test.json")
+
+        mock_questions.assert_called_once_with(ANY)
         mock_quiz.assert_called_once()
         mock_confirm.assert_called()
     

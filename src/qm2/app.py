@@ -139,28 +139,71 @@ def import_remote_file() -> None:
         refresh_csv_cache()  # Refresh CSV cache
         console.print(f"[green]✅ CSV file downloaded to:\n{saved}")
 
+def select_with_pagination(items: list[str], prompt_text: str, page_size: int = 10) -> str | None:
+    """ Universal helper for pagination."""
+    if not items:
+        return None
+        
+    page = 0
+    total_pages = (len(items) + page_size - 1) // page_size
+    
+    while True:
+        start = page * page_size
+        end = min(start + page_size, len(items))
+        
+        # Build current page choices
+        current_batch = items[start:end]
+        choices = []
+        
+        # Added navigation "Previous" if we are not on the fist page
+        if page > 0:
+            choices.append(Choice("⟨ Previous Page", value="prev"))
+            
+        # Added real item as choices
+        choices.extend(current_batch)
+        
+        # Added navigation "Next" if have more pages
+        if page < total_pages - 1:
+            choices.append(Choice("Next Page ⟩", value="next"))
+            
+        choices.append(Choice("↩ Back", value="back"))
+        
+        selection = questionary.select(
+            f"{prompt_text} (Page {page + 1}/{total_pages})",
+            choices=choices
+        ).ask()
+        
+        if selection == "next":
+            page += 1
+        elif selection == "prev":
+            page -= 1
+        elif selection == "back" or selection is None:
+            return None
+        else:
+            return selection
 
 def _handle_quiz_choice(score_file: str) -> None:
     """Handle 'Start Quiz' menu option."""
-    print("   ═══════════════════════ Categories ════════════════════════")
-    filename = select_category(allow_create=False)
-    if filename:
-        # Extract the clean name of the quiz from the path
-        # e.g., 'path/to/dataset-20.json' becomes 'dataset-20'
+    all_categories = get_categories() 
+    
+    selection = select_with_pagination(all_categories, "🚀 Choose a quiz to start")
+    
+    if selection:
+        filename = os.path.join(categories_root_dir(), selection)
         quiz_name = Path(filename).stem 
-        
         questions = get_questions(filename)
         
-        # Pass the quiz_name to the engine so it can be saved in stats
         quiz_session(questions, score_file, quiz_name=quiz_name)
-        
         input("\nPress Enter to return to the main menu...")
 
 
 def _handle_flashcards_choice() -> None:
     """Handle 'Flashcards Learning' menu option."""
-    filename = select_category(allow_create=False)
-    if filename:
+    all_categories = get_categories()
+    selection = select_with_pagination(all_categories, "👾 Choose a quiz for Flashcards")
+    
+    if selection:
+        filename = os.path.join(categories_root_dir(), selection)
         questions = get_questions(filename)
         flashcards_mode(questions)
 
