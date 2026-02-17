@@ -33,6 +33,13 @@ dependencies = [
     "platformdirs>=4.2"
 ]
 
+[project.optional-dependencies]
+test = [
+    "pytest>=8.0.0",
+    "pytest-cov>=4.1.0",
+    "ruff>=0.3.0",
+]
+
 [project.urls]
 Homepage = "https://github.com/ahalvadzija/qm2"
 "Bug Tracker" = "https://github.com/ahalvadzija/qm2/issues"
