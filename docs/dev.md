@@ -32,7 +32,7 @@ qm2/
 
 ### Quality Assurance & Performance
 
-Reliability is at the heart of QM2. The project maintains an 86% coverage rate backed by a massive suite of 325 individual tests. CI/CD pipeline ensures that every release is battle-tested.
+Reliability is at the heart of QM2. The project maintains an 86% coverage rate backed by a massive suite of 330 individual tests. CI/CD pipeline ensures that every release is battle-tested.
 
 #### Test Coverage Breakdown
 
