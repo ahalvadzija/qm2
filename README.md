@@ -4,17 +4,17 @@
 [![Python versions](https://img.shields.io/pypi/pyversions/qm2.svg)](https://pypi.org/project/qm2/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Tests Coverage](https://img.shields.io/badge/coverage-86%25-brightgreen.svg)](https://github.com/ahalvadzija/qm2)
-
 [![CI/CD Pipeline](https://github.com/ahalvadzija/qm2/actions/workflows/pipeline.yml/badge.svg)](https://github.com/ahalvadzija/qm2/actions/workflows/pipeline.yml)
 
 ![Main Menu](docs/images/main-qm2.png)
 
 ## Overview
 
-**Quiz Maker 2 (QM2)** is a robust, interactive terminal-based quiz engine built with Python. It is designed for developers and power users who want a professional CLI experience for learning and testing knowledge. It features a modern UI, extensive import/export capabilities, and a high-performance core.
+**Quiz Maker 2 (QM2)** is a robust, interactive terminal-based quiz engine built with Python. Designed for developers and power users, it now features AI-powered quiz generation, allowing you to create comprehensive study materials in seconds using Google's Gemini AI. It features a modern UI, extensive import/export capabilities, and a high-performance core.
 
 ### Key Features
 
+- **AI Quiz Generation**: Instantly generate quizzes on any topic using Google Gemini
 - **4 Question Types**: Multiple Choice, True/False, Fill-in-the-blank, Matching
 - **Timed Quiz Sessions**: Customizable timeout settings with real-time feedback
 - **Flashcards Mode**: Study mode for reviewing questions without scoring
@@ -42,6 +42,13 @@ Or install from source:
 git clone https://github.com/ahalvadzija/qm2.git
 cd qm2
 pip install -e .
+```
+
+To use AI features, set your API key and run:
+
+```bash
+export GEMINI_API_KEY="your_key_here"
+qm2
 ```
 
 ## Screenshots
@@ -120,9 +127,6 @@ qm2 --help
 
 # Show version
 qm2 --version
-
-# Run with specific data directory
-qm2 --data-dir /path/to/data
 ```
 
 ## Features in Detail
@@ -152,6 +156,24 @@ qm2 --data-dir /path/to/data
 - **Caching System**: Optimized for large question sets
 - **Memory Management**: Automatic cache cleanup
 - **Fast Loading**: Sub-second load times for thousands of questions
+
+## AI Generation Support
+
+QM2 integrates with Google Gemini to automate quiz creation. You can generate professional-grade questions by simply providing a topic.
+
+**Setup**
+
+1. Get a free API key from Google AI Studio.
+2. Export it to your environment:
+    - Linux/macOS: export GEMINI_API_KEY='...'
+    - Windows (CMD): set GEMINI_API_KEY=...
+    - Windows (PowerShell): $env:GEMINI_API_KEY='...'
+
+**AI Features**
+
+- Smart Retries: Automatic fallback between models (Gemini 2.0 Flash -> 1.5 Flash -> 1.5 Pro) if one is unavailable.
+- Rate Limit Handling: Built-in exponential backoff to handle API quotas gracefully.
+- Topic-to-Quiz: Generates all 4 question types (including complex Matching) with high accuracy.
 
 ## Project Structure
 

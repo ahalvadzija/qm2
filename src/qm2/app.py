@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import re
+import time
 from pathlib import Path
 from typing import Any
 
@@ -11,17 +12,31 @@ from rich.console import Console
 from rich.prompt import Prompt
 
 from qm2 import paths
-from qm2.core.categories import create_new_category, delete_category, categories_root_dir, csv_root_dir, rename_category, refresh_categories_cache, refresh_csv_cache
-from qm2.core.import_export import csv_to_json as core_csv_to_json, json_to_csv as core_json_to_csv, download_remote as core_download_remote
+from qm2.core.categories import (
+    create_new_category,
+    delete_category,
+    categories_root_dir,
+    csv_root_dir,
+    rename_category,
+    refresh_categories_cache,
+    refresh_csv_cache,
+)
+from qm2.core.import_export import (
+    csv_to_json as core_csv_to_json,
+    json_to_csv as core_json_to_csv,
+    download_remote as core_download_remote,
+)
 from qm2.core.templates import create_csv_template, create_json_template
 from qm2.core.engine import quiz_session, flashcards_mode
 from qm2.core.validation import is_file_valid
 from qm2.utils.ui import select_with_pagination
+from qm2.ai.generator import generate_quiz
+from qm2.paths import get_ai_config, save_ai_config
 
 from qm2.core.categories import (
     get_categories,
     categories_add,
-    delete_json_quiz_file, 
+    delete_json_quiz_file,
 )
 
 from qm2.core.questions import (
@@ -31,7 +46,7 @@ from qm2.core.questions import (
     edit_question_by_index,
     delete_question_by_index,
     delete_question,
-    create_question,  
+    create_question,
 )
 
 from qm2.core.scores import (
@@ -45,6 +60,51 @@ from qm2.ui.display import show_logo, show_help
 console = Console()
 
 SAFE_NAME = re.compile(r"^[a-zA-Z0-9._-]{1,64}$")
+
+# --- API HELPERS (Ensuring definitions are available) ---
+
+
+def get_api_key() -> str | None:
+    """
+    Retrieve Gemini API Key from environment or local config.
+    Priority: 1. Environment Variable, 2. config.json via paths.py
+    """
+    # 1. Check system environment variable
+    api_key = os.getenv("GEMINI_API_KEY")
+    if api_key:
+        return api_key
+
+    # 2. Check in config.json via paths.py
+    config = get_ai_config()
+    return config.get("gemini_api_key")
+
+
+def _handle_api_config() -> bool:
+    """
+    UI for configuring the Gemini API Key. Returns True if key is set.
+    """
+    console.print("\n[cyan]🔐 Gemini API Configuration[/cyan]")
+    console.print(
+        "Get your free key at: [bold blue]https://aistudio.google.com/app/apikey[/]\n"
+    )
+
+    new_key = Prompt.ask("🔑 Paste your Gemini API Key", password=True).strip()
+    if new_key:
+        config = get_ai_config()
+        config["gemini_api_key"] = new_key
+        save_ai_config(config)
+
+        console.print("[green]✅ API Key saved locally![/]")
+        return True
+    return False
+
+
+def delete_config_key(key_name: str) -> None:
+    """Removes a specific key from the config file."""
+    config = get_ai_config()
+    if key_name in config:
+        del config[key_name]
+        save_ai_config(config)
 
 
 def import_remote_file() -> None:
@@ -73,26 +133,35 @@ def import_remote_file() -> None:
         # Try to detect by content-type
         try:
             import requests
+
             response = requests.head(url, timeout=10, allow_redirects=True)
-            content_type = response.headers.get('content-type', '').lower()
-            
-            if 'csv' in content_type:
+            content_type = response.headers.get("content-type", "").lower()
+
+            if "csv" in content_type:
                 ext = "csv"
-            elif 'json' in content_type:
+            elif "json" in content_type:
                 ext = "json"
             else:
                 # If still unknown, ask user
-                ext = questionary.select(
-                    "🔍 Could not detect file type. Please choose:",
-                    choices=["CSV", "JSON"]
-                ).ask().lower()
+                ext = (
+                    questionary.select(
+                        "🔍 Could not detect file type. Please choose:",
+                        choices=["CSV", "JSON"],
+                    )
+                    .ask()
+                    .lower()
+                )
         except Exception:
             # If HEAD request fails, ask user
-            ext = questionary.select(
-                "🔍 Could not detect file type. Please choose:",
-                choices=["CSV", "JSON"]
-            ).ask().lower()
-    
+            ext = (
+                questionary.select(
+                    "🔍 Could not detect file type. Please choose:",
+                    choices=["CSV", "JSON"],
+                )
+                .ask()
+                .lower()
+            )
+
     if ext not in ["csv", "json"]:
         console.print("[red]⚠️ Unsupported file type. Only CSV and JSON are supported.")
         return
@@ -102,13 +171,15 @@ def import_remote_file() -> None:
         dest_dir = Path(csv_root_dir())  # CSV files go to CSV directory
     else:  # ext == "json"
         dest_dir = Path(categories_root_dir())  # JSON files go to categories directory
-    
+
     dest_dir.mkdir(parents=True, exist_ok=True)
     dest_path = dest_dir / f"{base}.{ext}"
 
     overwrite = True
     if dest_path.exists():
-        overwrite = questionary.confirm(f"⚠️ '{dest_path.name}' exists. Overwrite?").ask()
+        overwrite = questionary.confirm(
+            f"⚠️ '{dest_path.name}' exists. Overwrite?"
+        ).ask()
 
     try:
         saved = core_download_remote(url, dest_path, overwrite=bool(overwrite))
@@ -122,7 +193,9 @@ def import_remote_file() -> None:
     # Validate downloaded file
     console.print(f"[cyan]🔍 Validating downloaded {ext.upper()} file[/cyan]")
     if not is_file_valid(saved, ext):
-        console.print(f"[red]❌ Downloaded {ext.upper()} file is invalid. The file was not added.[/red]")
+        console.print(
+            f"[red]❌ Downloaded {ext.upper()} file is invalid. The file was not added.[/red]"
+        )
         # Remove invalid file
         try:
             saved.unlink()
@@ -134,7 +207,9 @@ def import_remote_file() -> None:
     if ext == "json":
         categories_add(str(saved))
         refresh_categories_cache()  # Refresh categories cache
-        console.print(f"[green]✅ JSON file downloaded and added to categories:\n{saved}")
+        console.print(
+            f"[green]✅ JSON file downloaded and added to categories:\n{saved}"
+        )
     else:
         refresh_csv_cache()  # Refresh CSV cache
         console.print(f"[green]✅ CSV file downloaded to:\n{saved}")
@@ -142,23 +217,22 @@ def import_remote_file() -> None:
 
 def _handle_quiz_choice(score_file: str) -> None:
     """Handle 'Start Quiz' menu option."""
-    all_categories = get_categories() 
-    
+    all_categories = get_categories()
+
     formatted_choices = []
     for cat in all_categories:
-
         p = Path(cat)
         display_label = f"📁 {p.parent.name} › {p.stem}"
-        
+
         formatted_choices.append(Choice(title=display_label, value=cat))
-    
+
     selection = select_with_pagination("🚀 Choose a quiz to start", formatted_choices)
-    
+
     if selection and selection != "↩ Back":
         filename = os.path.join(categories_root_dir(), selection)
-        quiz_name = Path(filename).stem 
+        quiz_name = Path(filename).stem
         questions = get_questions(filename)
-        
+
         quiz_session(questions, score_file, quiz_name=quiz_name)
         input("\nPress Enter to return to the main menu...")
 
@@ -166,18 +240,19 @@ def _handle_quiz_choice(score_file: str) -> None:
 def _handle_flashcards_choice() -> None:
     """Handle 'Flashcards Learning' menu option."""
     all_categories = get_categories()
-    
+
     formatted_choices = [
-        Choice(title=f"📁 {Path(cat).parent.name} › {Path(cat).stem}", value=cat) 
+        Choice(title=f"📁 {Path(cat).parent.name} › {Path(cat).stem}", value=cat)
         for cat in all_categories
     ]
-    
+
     selection = select_with_pagination("📚 Choose cards to study", formatted_choices)
-    
+
     if selection and selection != "↩ Back":
         filename = os.path.join(categories_root_dir(), selection)
         questions = get_questions(filename)
         flashcards_mode(questions)
+
 
 def _handle_categories_management() -> None:
     """Handle 'Manage categories' submenu."""
@@ -205,11 +280,15 @@ def _handle_categories_management() -> None:
             break
 
 
-def _handle_questions_submenu(filename: str, questions: list[dict[str, Any]]) -> list[dict[str, Any]]:
+def _handle_questions_submenu(
+    filename: str, questions: list[dict[str, Any]]
+) -> list[dict[str, Any]]:
     """Handle questions submenu for a category. Returns updated questions list."""
     # Pripremamo ljepši naslov koristeći Path
     p = Path(filename)
-    category_name = p.parent.name if p.parent.name and p.parent.name != "." else "General"
+    category_name = (
+        p.parent.name if p.parent.name and p.parent.name != "." else "General"
+    )
     clean_title = f"📁 {category_name} › {p.stem}"
 
     while True:
@@ -239,7 +318,9 @@ def _handle_questions_submenu(filename: str, questions: list[dict[str, Any]]) ->
             if not questions:
                 console.print("[yellow]⚠️ No questions to edit.")
             else:
-                entry = Prompt.ask(f"Enter question number (1-{len(questions)})").strip()
+                entry = Prompt.ask(
+                    f"Enter question number (1-{len(questions)})"
+                ).strip()
                 if entry.isdigit():
                     edit_question_by_index(questions, int(entry))
                 else:
@@ -248,7 +329,9 @@ def _handle_questions_submenu(filename: str, questions: list[dict[str, Any]]) ->
             if not questions:
                 console.print("[yellow]⚠️ No questions to delete.")
             else:
-                entry = Prompt.ask(f"Enter question number (1-{len(questions)})").strip()
+                entry = Prompt.ask(
+                    f"Enter question number (1-{len(questions)})"
+                ).strip()
                 if entry.isdigit():
                     delete_question_by_index(filename, int(entry))
                     questions = get_questions(filename)
@@ -274,26 +357,29 @@ def _handle_questions_menu() -> None:
     """Handle 'Questions' menu option."""
     while True:
         raw_categories = get_categories()
-        
+
         if not raw_categories:
             console.print("[yellow]⚠️ No categories found.")
             return
-        
+
         # Transforming raw category paths into display choices with 'value' as relative path for pagination --- IGNORE ---
         choices_for_pagination = []
         for cat in raw_categories:
             p = Path(cat)
-            category_name = p.parent.name if p.parent.name and p.parent.name != "." else "General"
+            category_name = (
+                p.parent.name if p.parent.name and p.parent.name != "." else "General"
+            )
             display = f"📁 {category_name} › {p.stem}"
             choices_for_pagination.append(Choice(title=display, value=cat))
-            
+
         # Adding "Manage categories" option at the end of the choices for pagination --- IGNORE ---
-        choices_for_pagination.append(Choice(title="🛠️ Manage categories", value="manage"))
-        
+        choices_for_pagination.append(
+            Choice(title="🛠️ Manage categories", value="manage")
+        )
+
         # Calling pagination select, it will return the 'value' from Choice (relative path) or "back"/None --- IGNORE ---
         selection = select_with_pagination(
-            "📂 Questions - choose a category or option:",
-            choices_for_pagination
+            "📂 Questions - choose a category or option:", choices_for_pagination
         )
 
         if selection == "↩ Back" or selection is None:
@@ -306,6 +392,7 @@ def _handle_questions_menu() -> None:
             filename = os.path.join(categories_root_dir(), selection)
             questions = get_questions(filename)
             _handle_questions_submenu(filename, questions)
+
 
 def _handle_stats_menu(score_file: str) -> None:
     """Handle 'Statistics' menu option."""
@@ -337,12 +424,16 @@ def _handle_csv_to_json() -> None:
         console.print("[red]⚠️ No CSV files found.")
         return
 
-    csv_choice = questionary.select("📄 Choose a CSV file to convert:", choices=csv_files + ["↩ Back"]).ask()
+    csv_choice = questionary.select(
+        "📄 Choose a CSV file to convert:", choices=csv_files + ["↩ Back"]
+    ).ask()
     if csv_choice == "↩ Back":
         return
 
     cats_root = categories_root_dir()
-    folder_choice = Prompt.ask("Folder under 'categories' (e.g., history/antiquity)", default="").strip()
+    folder_choice = Prompt.ask(
+        "Folder under 'categories' (e.g., history/antiquity)", default=""
+    ).strip()
     folder_path = os.path.join(cats_root, folder_choice) if folder_choice else cats_root
     os.makedirs(folder_path, exist_ok=True)
 
@@ -353,7 +444,9 @@ def _handle_csv_to_json() -> None:
     # Validate CSV before conversion
     console.print(f"[cyan]🔍 Validating CSV file: {csv_choice}[/cyan]")
     if not is_file_valid(Path(src_csv), "csv"):
-        console.print("[red]❌ CSV validation failed. Please fix the errors and try again.[/red]")
+        console.print(
+            "[red]❌ CSV validation failed. Please fix the errors and try again.[/red]"
+        )
         return
 
     core_csv_to_json(Path(src_csv), Path(out_json))
@@ -374,7 +467,9 @@ def _handle_json_to_csv() -> None:
         console.print("[red]⚠️ No JSON files available.")
         return
 
-    rel_choice = questionary.select("📁 Choose a JSON file to export to CSV:", choices=json_files + ["↩ Back"]).ask()
+    rel_choice = questionary.select(
+        "📁 Choose a JSON file to export to CSV:", choices=json_files + ["↩ Back"]
+    ).ask()
     if rel_choice == "↩ Back":
         return
 
@@ -387,7 +482,9 @@ def _handle_json_to_csv() -> None:
     # Validate JSON before conversion
     console.print(f"[cyan]🔍 Validating JSON file: {rel_choice}[/cyan]")
     if not is_file_valid(Path(src_json), "json"):
-        console.print("[red]❌ JSON validation failed. Please fix the errors and try again.[/red]")
+        console.print(
+            "[red]❌ JSON validation failed. Please fix the errors and try again.[/red]"
+        )
         return
 
     core_json_to_csv(Path(src_json), Path(out_csv))
@@ -406,11 +503,12 @@ def _handle_tools_menu() -> None:
                 "📄 Create CSV template",
                 "📄 Create JSON template",
                 "🌐 Import remote CSV/JSON",
+                "⚙️ Configure API Keys",  # New option
                 "↩ Back",
             ],
         ).ask()
 
-        if tools_choice == "↩ Back":
+        if tools_choice == "↩ Back" or tools_choice is None:
             break
 
         if tools_choice.startswith("🧾"):
@@ -419,14 +517,210 @@ def _handle_tools_menu() -> None:
             _handle_json_to_csv()
         elif tools_choice == "📄 Create CSV template":
             path = create_csv_template()
-            refresh_csv_cache()  # Refresh CSV cache
+            refresh_csv_cache()
             console.print(f"[green]✅ CSV template created at: [bold]{path}[/]")
         elif tools_choice == "📄 Create JSON template":
             path = create_json_template()
-            refresh_categories_cache()  # Refresh categories cache
+            refresh_categories_cache()
             console.print(f"[green]✅ JSON template created at: [bold]{path}[/]")
         elif tools_choice == "🌐 Import remote CSV/JSON":
             import_remote_file()
+        elif tools_choice == "⚙️ Configure API Keys":
+            # Fetch current key for display
+            current_key = get_api_key()
+            if current_key:
+                # Show first 4 + last 4 characters, mask the middle
+                preview = f"{current_key[:4]}***{current_key[-4:]}"
+            else:
+                preview = "(none)"
+            # Submenu for API management
+            api_opt = questionary.select(
+                f"🔑 API Management (Current key: {preview}):",
+                choices=["📝 Set Gemini API Key", "🗑️ Remove Gemini API Key", "↩ Back"],
+            ).ask()
+
+            if api_opt == "📝 Set Gemini API Key":
+                _handle_api_config()
+            elif api_opt == "🗑️ Remove Gemini API Key":
+                if questionary.confirm(
+                    "Are you sure you want to remove the saved API key?"
+                ).ask():
+                    delete_config_key("gemini_api_key")
+                    # Also clear from current session environment
+                    if "GEMINI_API_KEY" in os.environ:
+                        del os.environ["GEMINI_API_KEY"]
+                    console.print("[yellow]🗑️ API Key removed.[/]")
+
+
+def _handle_model_selection() -> None:
+    """UI menu to select a predefined Gemini model or enter a custom one."""
+    config = get_ai_config()
+    current = config.get("model", "gemini-2.0-flash-exp")
+
+    choice = questionary.select(
+        f"🤖 Current model: {current}\n  Choose an option:",
+        choices=[
+            questionary.Choice(
+                "⚡ Gemini Flash (latest, recommended)", value="gemini-flash-latest"
+            ),
+            questionary.Choice(
+                "🔥 Gemini 2.5 Flash-Lite (Largest free tier, fastest)",
+                value="gemini-2.5-flash-lite",
+            ),
+            questionary.Choice(
+                "🌟 Gemini 2.5 Flash (Best balance speed/quality)",
+                value="gemini-2.5-flash",
+            ),
+            questionary.Choice(
+                "🚀 Gemini 2.0 Flash-Lite (Very cheap & stable)",
+                value="gemini-2.0-flash-lite",
+            ),
+            questionary.Choice(
+                "🧠 Gemini 2.5 Pro (Best reasoning, smaller free tier)",
+                value="gemini-2.5-pro",
+            ),
+            questionary.Choice("✏️ Custom (Enter model name manually)", value="CUSTOM"),
+            "↩ Back",
+        ],
+    ).ask()
+
+    if choice == "↩ Back" or choice is None:
+        return
+
+    if choice == "CUSTOM":
+        new_model = Prompt.ask(
+            "Enter exact Gemini model name (e.g., gemini-1.0-pro)"
+        ).strip()
+    else:
+        new_model = choice
+
+    if new_model:
+        # Save both the API key (if exists) and the new model
+        current_config = get_ai_config()
+        current_config["model"] = new_model
+        save_ai_config(current_config)
+        console.print(f"[green]✅ AI model updated to: {new_model}[/]")
+
+
+def _handle_ai_menu(topic: str = None, num: str = None) -> None:
+    from rich.table import Table
+    from rich import box
+    from qm2.core.questions import type_label
+
+    # 1. API Key check
+    api_key = get_api_key()
+    if not api_key:
+        console.print("[yellow]⚠️ Gemini API Key not found.[/]")
+        if questionary.confirm("Would you like to configure it now?").ask():
+            if not _handle_api_config():
+                return
+            api_key = get_api_key()
+        else:
+            return
+
+    os.environ["GEMINI_API_KEY"] = api_key
+
+    # 2. Submenu for AI Actions
+    while True:
+        config = get_ai_config()
+        current_model = config.get("model", "gemini-2.0-flash-exp")
+
+        # If topic is provided (from Retry), skip menu and go to generation
+        if topic:
+            action = "📝 Generate new quiz"
+        else:
+            action = questionary.select(
+                f"🤖 AI Generator (Model: {current_model})",
+                choices=["📝 Generate new quiz", "⚙️  Change AI Model", "↩ Back"],
+            ).ask()
+
+        if action == "↩ Back" or action is None:
+            break
+
+        if action == "⚙️  Change AI Model":
+            _handle_model_selection()
+            continue
+
+        # 3. Generation Process
+        if action == "📝 Generate new quiz":
+            if topic is None:
+                topic_input = Prompt.ask("🧠 Enter quiz topic (or 'b' to back)").strip()
+                if not topic_input or topic_input.lower() in ["b", "back"]:
+                    continue
+            else:
+                topic_input = topic
+
+            if num is None:
+                num_input = Prompt.ask("🔢 Questions", default="5")
+                if num_input.lower() == "b":
+                    continue
+            else:
+                num_input = num
+
+            with console.status(
+                f"[bold cyan]🤖 AI ({current_model}) is crafting your quiz..."
+            ):
+                try:
+                    # PASS THE CUSTOM MODEL HERE
+                    questions = generate_quiz(
+                        topic_input,
+                        int(num_input),
+                        "Gemini",
+                        custom_model=current_model,
+                    )
+
+                    if not questions:
+                        console.print(
+                            f"[red]❌ Model '{current_model}' failed to return results.[/]"
+                        )
+                        if questionary.confirm("Try again with fallback models?").ask():
+                            # This will trigger generate_quiz without custom_model parameter inside generator.py logic
+                            questions = generate_quiz(
+                                topic_input, int(num_input), "Gemini"
+                            )
+                        else:
+                            topic, num = None, None
+                            continue
+
+                    # Preview Table
+                    table = Table(title=f"📝 Preview: {topic_input}", box=box.SIMPLE)
+                    table.add_column("#", justify="right")
+                    table.add_column("Question")
+                    table.add_column("Type")
+                    for i, q in enumerate(questions, 1):
+                        table.add_row(
+                            str(i), q.get("question", ""), type_label(q.get("type"))
+                        )
+                    console.print(table)
+
+                    # 4. User Decisions
+                    post_action = questionary.select(
+                        "Action:", choices=["💾 Save & Return", "🔄 Retry", "↩ Back"]
+                    ).ask()
+
+                    if post_action == "🔄 Retry":
+                        topic, num = topic_input, num_input
+                        continue
+
+                    if post_action == "💾 Save & Return":
+                        safe_name = re.sub(r"[^a-zA-Z0-9]", "_", topic_input.lower())
+                        ai_dir = Path(categories_root_dir()) / "AI"
+                        ai_dir.mkdir(parents=True, exist_ok=True)
+                        final_path = ai_dir / f"ai_{safe_name}.json"
+                        save_json(final_path, questions)
+                        refresh_categories_cache()
+                        display_name = f"ai/{final_path.name}"
+                        console.print(f"[green]✅ Saved to {display_name}.[/]")
+                        time.sleep(1)
+
+                    # Reset for next run
+                    topic, num = None, None
+                    break
+
+                except Exception as e:
+                    console.print(f"[red]❌ Error: {e}")
+                    input("\nPress Enter...")
+                    topic, num = None, None
 
 
 def main() -> None:
@@ -444,8 +738,9 @@ def main() -> None:
                 "3.) 🗂️ Questions",
                 "4.) 📈 Statistics",
                 "5.) 🧰 Tools",
-                "6.) 💞 Help",
-                "7.) ⏻  Exit",
+                "6.) 🤖 AI Generator",
+                "7.) 💞 Help",
+                "8.) ⏻  Exit",
             ],
         ).ask()
 
@@ -460,8 +755,10 @@ def main() -> None:
         elif choice.startswith("5"):
             _handle_tools_menu()
         elif choice.startswith("6"):
-            show_help()
+            _handle_ai_menu()
         elif choice.startswith("7"):
+            show_help()
+        elif choice.startswith("8"):
             confirm = questionary.confirm("Are you sure you want to exit?").ask()
             if confirm:
                 console.print("[bold green]👋 Exit. Good luck with your studies!")

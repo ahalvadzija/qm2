@@ -1,4 +1,11 @@
 import pytest
+import sys
+from unittest.mock import MagicMock
+
+if "google.genai" not in sys.modules:
+    mock_genai = MagicMock()
+    sys.modules["google"] = MagicMock()
+    sys.modules["google.genai"] = mock_genai
 
 class FakeQuestionary:
     """Fake questionary helper to avoid interactive prompts in tests."""

@@ -2,3 +2,4 @@ rich
 questionary
 requests
 platformdirs
+google-genai

@@ -11,7 +11,7 @@
   <figcaption><b>Figure 1:</b> The centralized dashboard of QM2, offering intuitive navigation through quiz modules, statistics, and system tools.</figcaption>
 </figure>
 
-**Quiz Maker 2 (QM2)** is a robust, interactive terminal-based quiz engine built with Python. It is designed for developers and power users who want a professional CLI experience for learning and testing knowledge. It features a modern UI, extensive import/export capabilities, and a high-performance core.
+**Quiz Maker 2 (QM2)** is a robust, interactive terminal-based quiz engine built with Python. Designed for developers and power users, it now features AI-powered quiz generation, allowing you to create comprehensive study materials in seconds using Google's Gemini AI. It features a modern UI, extensive import/export capabilities, and a high-performance core.
 
 ## Gameplay
 
@@ -22,6 +22,7 @@
 
 ### Key Features
 
+- **AI Quiz Generation**: Instantly generate quizzes on any topic using Google Gemini
 - **4 Question Types**: Multiple Choice, True/False, Fill-in-the-blank, Matching
 - **Timed Quiz Sessions**: Customizable timeout settings with real-time feedback
 - **Flashcards Mode**: Study mode for reviewing questions without scoring
@@ -39,6 +40,24 @@
   <img src="images/flashcards-qm2.png" alt="Flashcards Mode" />
   <figcaption><b>Figure 3:</b> Flashcards study mode designed for stress-free learning, allowing users to flip through questions without scoring.</figcaption>
 </figure>
+
+## AI Generation Support
+
+QM2 integrates with Google Gemini to automate quiz creation. You can generate professional-grade questions by simply providing a topic.
+
+**Setup**
+
+1. Get a free API key from Google AI Studio.
+2. Export it to your environment:
+    - Linux/macOS: export GEMINI_API_KEY='...'
+    - Windows (CMD): set GEMINI_API_KEY=...
+    - Windows (PowerShell): $env:GEMINI_API_KEY='...'
+
+**AI Features**
+
+- Smart Retries: Automatic fallback between models (Gemini 2.0 Flash -> 1.5 Flash -> 1.5 Pro) if one is unavailable.
+- Rate Limit Handling: Built-in exponential backoff to handle API quotas gracefully.
+- Topic-to-Quiz: Generates all 4 question types (including complex Matching) with high accuracy.
 
 ## Support
 

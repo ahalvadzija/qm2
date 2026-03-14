@@ -30,7 +30,8 @@ dependencies = [
     "rich>=13.7.0",
     "questionary>=2.0.0",
     "requests>=2.31.0",
-    "platformdirs>=4.2"
+    "platformdirs>=4.2",
+    "google-genai>=0.3.0"
 ]
 
 [project.optional-dependencies]
