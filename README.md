@@ -3,7 +3,7 @@
 [![PyPI version](https://badge.fury.io/py/qm2.svg)](https://badge.fury.io/py/qm2)
 [![Python versions](https://img.shields.io/pypi/pyversions/qm2.svg)](https://pypi.org/project/qm2/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Tests Coverage](https://img.shields.io/badge/coverage-86%25-brightgreen.svg)](https://github.com/ahalvadzija/qm2)
+[![Tests Coverage](https://img.shields.io/badge/coverage-84%25-brightgreen.svg)](https://github.com/ahalvadzija/qm2)
 [![CI/CD Pipeline](https://github.com/ahalvadzija/qm2/actions/workflows/pipeline.yml/badge.svg)](https://github.com/ahalvadzija/qm2/actions/workflows/pipeline.yml)
 
 ![Main Menu](docs/images/main-qm2.png)
